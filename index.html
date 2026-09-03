@@ -267,6 +267,68 @@ tbody tr.q2{background:linear-gradient(90deg,rgba(30,107,255,.07),transparent 70
 }
 .streakbar .s b{color:var(--ink);font-weight:600}
 
+
+/* ---------- View tabs ---------- */
+.tabbar{
+  display:flex;gap:4px;align-items:flex-end;
+  padding:0 clamp(14px,2.4vw,30px);
+  border-bottom:1px solid var(--rule);background:rgba(5,14,40,.6);
+}
+.tab{
+  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:13.5px;
+  text-transform:uppercase;letter-spacing:.12em;
+  background:transparent;border:0;border-bottom:2px solid transparent;
+  color:var(--ink-dim);padding:11px 16px;cursor:pointer;transition:color .15s,border-color .15s;
+}
+.tab:hover{color:var(--ink-mid)}
+.tab.on{color:var(--ink);border-bottom-color:var(--uefa-lt)}
+
+/* ---------- Form badges ---------- */
+.form{display:inline-flex;gap:3px}
+.form i{
+  width:17px;height:17px;border-radius:4px;display:grid;place-items:center;
+  font-style:normal;font-family:var(--font-display);font-weight:700;font-size:10.5px;color:#04122e;
+}
+.form .fW{background:var(--good)}
+.form .fD{background:#8fa6c9}
+.form .fL{background:var(--bad)}
+
+/* ---------- Fixtures ---------- */
+.rounds{display:grid;gap:10px}
+.round{border:1px solid var(--rule);border-radius:10px;padding:9px 11px;background:rgba(8,20,56,.55)}
+.round.future{opacity:.5}
+.rhead{
+  display:flex;align-items:center;gap:9px;margin-bottom:7px;
+  padding-bottom:6px;border-bottom:1px solid var(--rule);
+}
+.rno{
+  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:12.5px;
+  text-transform:uppercase;letter-spacing:.1em;color:var(--ink);
+}
+.rdate{font-family:var(--font-hud);font-size:9.5px;color:var(--ink-dim);letter-spacing:.07em;margin-left:auto}
+.fix{
+  display:grid;grid-template-columns:1fr auto auto auto 1fr;gap:8px;align-items:center;
+  padding:4px 0;font-size:12.5px;
+}
+.fix .side{
+  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:13.5px;
+  text-transform:uppercase;letter-spacing:.05em;color:var(--ink-mid);
+}
+.fix .side.a{text-align:right}
+.fix .side.l{opacity:.5}
+.fix .sc{font-family:var(--font-hud);font-variant-numeric:tabular-nums;font-size:12px;color:var(--ink)}
+.fix .vs{
+  font-family:var(--font-hud);font-size:9px;letter-spacing:.08em;text-align:center;
+  min-width:56px;padding:2.5px 5px;border-radius:4px;border:1px solid var(--rule);color:var(--ink-dim);
+}
+.fix .vs.win{color:var(--good);border-color:rgba(62,224,138,.45)}
+.fix .vs.draw{color:#c7d6ee;border-color:var(--rule-str)}
+.fix .vs.void{color:#ff9f43;border-color:rgba(255,159,67,.4)}
+@media (max-width:560px){
+  .fix{grid-template-columns:1fr auto 1fr;row-gap:2px}
+  .fix .vs{grid-column:1/-1;order:3;min-width:0}
+}
+
 /* ---------- Alert banner ---------- */
 .alertbar{display:none}
 .alertbar.show{
@@ -471,6 +533,7 @@ tbody tr.q2{background:linear-gradient(90deg,rgba(30,107,255,.07),transparent 70
 </header>
 
 <div class="alertbar" id="alert" role="status" aria-live="polite"></div>
+<nav class="tabbar" id="tabbar" role="tablist"></nav>
 <div class="periodbar" id="periodbar"></div>
 
 <main class="board" id="board"></main>
@@ -1081,7 +1144,7 @@ function monthsWonMap(months){
    4. APP STATE + STORAGE
    ========================================================================== */
 var STATE={ model:null, view:null, rawCSV:"", order:null, spans:{}, hidden:{},
-            sortBy:"total", period:"all", timer:null };
+            sortBy:"total", period:"all", timer:null, tab:"dashboard", season:null };
 var MEM={};
 /* Persistence, in order of preference:
      1. window.storage  - present when running as a Claude artifact
@@ -1936,6 +1999,223 @@ function renderMonthWins(body){
   body.innerHTML=h;
 }
 
+
+/* ============================================================================
+   16. LEAGUE FORMAT
+   ----------------------------------------------------------------------------
+   A fixture is simply two players' scores on the same matchday:
+     margin > DRAW_MARGIN  -> win / loss      (WIN_PTS / LOSS_PTS)
+     margin <= DRAW_MARGIN -> draw            (DRAW_PTS each)
+
+   Fixtures come from a circle-method round robin, so with 6 players everyone
+   meets everyone once over 5 rounds, and the reverse fixtures fill rounds 6-10
+   — exactly the 10 rounds you asked for. Nothing extra is needed in the sheet.
+
+   A SEASON is a block of consecutive matchdays, one per round. With 6 players
+   that is 10 matchdays; matchday 11 kicks off a fresh season, so the league
+   keeps running instead of freezing once the first 10 days are used.
+   ========================================================================== */
+var DRAW_MARGIN = 3000;   /* within this many points = a draw */
+var WIN_PTS     = 3;
+var DRAW_PTS    = 1;
+var LOSS_PTS    = 0;
+
+/* What happens when a fixture can't be played because someone missed the day.
+     "void"     - no points to either player (a postponed game)
+     "walkover" - the player who did post a score takes the win           */
+var MISSED_FIXTURE = "void";
+
+/* Circle-method round robin. Returns rounds of [i,j] index pairs; with an odd
+   squad one player sits out each round (a bye). */
+function roundRobin(n){
+  var ids=[],i;
+  for(i=0;i<n;i++) ids.push(i);
+  if(n%2) ids.push(-1);                      /* -1 = bye */
+  var m=ids.length, fixed=ids[0], rot=ids.slice(1), rounds=[];
+  for(var r=0;r<m-1;r++){
+    var pairs=[[fixed,rot[0]]];
+    for(i=1;i<m/2;i++) pairs.push([rot[i],rot[rot.length-i]]);
+    rounds.push(pairs.filter(function(p){ return p[0]>=0&&p[1]>=0; }));
+    rot.unshift(rot.pop());                  /* rotate */
+  }
+  /* second half of the season: the same fixtures again */
+  return rounds.concat(rounds.map(function(rd){
+    return rd.map(function(p){ return [p[1],p[0]]; });
+  }));
+}
+
+/* Matchday date indices — any date where at least one score was posted. */
+function matchdayIndices(model){
+  var out=[];
+  model.dates.forEach(function(d,i){ if(model.winners[i].length) out.push(i); });
+  return out;
+}
+
+function seasonCount(model){
+  var n=model.players.length;
+  if(n<2) return 0;
+  var per=roundRobin(n).length;
+  return Math.max(1,Math.ceil(matchdayIndices(model).length/per));
+}
+
+/* ----------------------------------------------------------------------------
+   buildLeague(model, season)  ->  { rounds, table, per, played, total }
+   season is 0-based. Everything is recomputed from daily scores.
+   -------------------------------------------------------------------------- */
+function buildLeague(model,season){
+  var ps=model.players, n=ps.length;
+  var fixtures=roundRobin(n), per=fixtures.length;
+  var mds=matchdayIndices(model);
+  var from=season*per, slice=mds.slice(from,from+per);
+
+  var row={};
+  ps.forEach(function(p){
+    row[p.key]={ p:p, P:0,W:0,D:0,L:0,PF:0,PA:0,Pts:0, form:[] };
+  });
+
+  var rounds=fixtures.map(function(pairs,r){
+    var di=slice[r];
+    var games=pairs.map(function(pr){
+      var A=ps[pr[0]], B=ps[pr[1]];
+      var sa=di==null?null:A.scores[di], sb=di==null?null:B.scores[di];
+      var g={a:A,b:B,sa:sa,sb:sb,state:"upcoming",margin:null,res:null};
+      if(di==null) return g;
+      if(sa==null&&sb==null){ g.state="void"; return g; }
+      if(sa==null||sb==null){
+        if(MISSED_FIXTURE!=="walkover"){ g.state="void"; return g; }
+        g.state="walkover"; g.res=(sa==null)?"b":"a";
+      } else {
+        g.state="played";
+        g.margin=Math.abs(sa-sb);
+        g.res = g.margin<=DRAW_MARGIN ? "d" : (sa>sb?"a":"b");
+      }
+      /* award points */
+      var ra=row[A.key], rb=row[B.key];
+      ra.P++; rb.P++;
+      if(sa!=null){ ra.PF+=sa; rb.PA+=sa; }
+      if(sb!=null){ rb.PF+=sb; ra.PA+=sb; }
+      if(g.res==="d"){
+        ra.D++; rb.D++; ra.Pts+=DRAW_PTS; rb.Pts+=DRAW_PTS;
+        ra.form.push("D"); rb.form.push("D");
+      } else if(g.res==="a"){
+        ra.W++; rb.L++; ra.Pts+=WIN_PTS; rb.Pts+=LOSS_PTS;
+        ra.form.push("W"); rb.form.push("L");
+      } else {
+        rb.W++; ra.L++; rb.Pts+=WIN_PTS; ra.Pts+=LOSS_PTS;
+        rb.form.push("W"); ra.form.push("L");
+      }
+      return g;
+    });
+    return { round:r+1, dateIdx:di, date:di==null?null:model.dates[di], games:games };
+  });
+
+  var table=ps.map(function(p){ return row[p.key]; }).sort(function(a,b){
+    return (b.Pts-a.Pts) || ((b.PF-b.PA)-(a.PF-a.PA)) || (b.PF-a.PF) ||
+           a.p.name.localeCompare(b.p.name);
+  });
+  var played=rounds.filter(function(r){ return r.dateIdx!=null; }).length;
+  return { rounds:rounds, table:table, per:per, played:played, season:season };
+}
+
+/* ============================================================================
+   17. PANEL: LEAGUE TABLE
+   ========================================================================== */
+var TIP_LEAGUE='<b>How the league works</b> \u2014 every matchday, three fixtures are played from '+
+  'a fixed round-robin draw, so everyone meets everyone twice across '+
+  '<b>10 rounds</b>. A fixture compares the two players\u2019 scores that day: more than '+
+  '<code>3,000</code> apart is a win, within <code>3,000</code> is a draw. '+
+  'Three points for a win, one for a draw. Nothing extra is needed in the spreadsheet \u2014 '+
+  'it is all derived from the daily scores.';
+var TIP_PFPA='<b>PF / PA / PD</b> \u2014 points For and Against are the raw TimeGuessr scores from '+
+  'your fixtures (the league equivalent of goals), and PD is the difference. PD then PF break '+
+  'ties on points, just like goal difference.';
+var TIP_VOID='<b>Postponed fixtures</b> \u2014 if either player missed that day the fixture is void '+
+  'and neither takes points, so nobody is punished for a day off. Players can therefore have '+
+  'games in hand \u2014 watch the <b>P</b> column. To make a no-show a forfeit instead, set '+
+  '<code>MISSED_FIXTURE = "walkover"</code> near the top of the script.';
+
+function formBadges(form){
+  return '<span class="form">'+form.slice(-5).map(function(f){
+    return '<i class="f'+f+'">'+f+'</i>';
+  }).join("")+'</span>';
+}
+
+/* Season chips live in the shared top bar (see renderSeasonBar), so the two
+   league panels never draw duplicate selectors. */
+function currentSeason(){
+  var total=seasonCount(STATE.model);
+  if(STATE.season==null||STATE.season>=total||STATE.season<0) STATE.season=Math.max(0,total-1);
+  return STATE.season;
+}
+
+function renderLeague(body){
+  var m=STATE.model;
+  if(m.players.length<2){ body.innerHTML='<div class="empty">A league needs at least two players.</div>'; return; }
+  var L=buildLeague(m,currentSeason());
+
+  var h='<div class="pnote" style="margin-bottom:9px">ROUND '+Math.min(L.played,L.per)+' OF '+L.per+
+     ' '+helpIcon(TIP_LEAGUE)+'</div>';
+  h+='<div style="overflow-x:auto"><table><thead><tr>'+
+     '<th>#</th><th>Player</th><th>P '+helpIcon(TIP_VOID)+'</th><th>W</th><th>D</th><th>L</th>'+
+     '<th>PF '+helpIcon(TIP_PFPA)+'</th><th>PA</th><th>PD</th><th>Pts</th><th>Form</th>'+
+     '</tr></thead><tbody>';
+  L.table.forEach(function(r,i){
+    var pd=r.PF-r.PA, zone=i===0?"q1":(i<3?"q2":"");
+    h+='<tr class="'+zone+'"><td class="pos">'+(i+1)+'</td>'+
+      '<td><div class="who"><span class="chip" style="background:'+r.p.color+';color:'+r.p.color+'"></span>'+
+        '<span class="nm">'+esc(r.p.name)+'</span></div></td>'+
+      '<td class="num">'+r.P+'</td><td class="num">'+r.W+'</td><td class="num">'+r.D+'</td>'+
+      '<td class="num">'+r.L+'</td>'+
+      '<td class="num">'+fmtInt(r.PF)+'</td><td class="num">'+fmtInt(r.PA)+'</td>'+
+      '<td class="num" style="color:'+(pd>0?"var(--good)":(pd<0?"var(--bad)":"var(--ink-mid)"))+'">'+
+        (pd>0?"+":"")+fmtInt(pd)+'</td>'+
+      '<td class="big num" style="color:var(--gold)">'+r.Pts+'</td>'+
+      '<td>'+formBadges(r.form)+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+  h+='<div class="zonekey"><span><i style="background:rgba(30,107,255,.55)"></i>Champion</span>'+
+     '<span><i style="background:rgba(30,107,255,.24)"></i>Podium places</span>'+
+     '<span>Win &gt; '+fmtInt(DRAW_MARGIN)+' \u00B7 draw within '+fmtInt(DRAW_MARGIN)+
+     ' \u00B7 '+WIN_PTS+'/'+DRAW_PTS+'/'+LOSS_PTS+' pts</span></div>';
+  body.innerHTML=h;
+}
+
+/* ============================================================================
+   18. PANEL: FIXTURES & RESULTS
+   ========================================================================== */
+function renderFixtures(body){
+  var m=STATE.model;
+  if(m.players.length<2){ body.innerHTML='<div class="empty">A league needs at least two players.</div>'; return; }
+  var L=buildLeague(m,currentSeason());
+
+  var h='<div class="pnote" style="margin-bottom:9px">FIXTURES &amp; RESULTS</div><div class="rounds">';
+  L.rounds.forEach(function(rd){
+    var live=(rd.round===L.played);
+    h+='<div class="round'+(rd.dateIdx==null?" future":"")+'">'+
+       '<div class="rhead"><span class="rno">Round '+rd.round+'</span>'+
+       '<span class="rdate">'+(rd.date?esc(fmtDateLong(rd.date)):"to be played")+'</span>'+
+       (live?'<span class="livetag">LATEST</span>':'')+'</div>';
+    rd.games.forEach(function(g){
+      var aw=(g.res==="a"), bw=(g.res==="b"), dr=(g.res==="d");
+      var mid = g.state==="upcoming" ? '<span class="vs">v</span>'
+              : g.state==="void" ? '<span class="vs void">P-P</span>'
+              : dr ? '<span class="vs draw">DRAW</span>'
+              : '<span class="vs win">+'+fmtInt(g.margin==null?0:g.margin)+'</span>';
+      h+='<div class="fix">'+
+        '<span class="side a'+(aw?" w":"")+(bw?" l":"")+'" style="'+(aw?"color:"+g.a.color:"")+'">'+
+          esc(g.a.name)+'</span>'+
+        '<span class="sc">'+(g.sa==null?"\u2013":fmtInt(g.sa))+'</span>'+
+        mid+
+        '<span class="sc">'+(g.sb==null?"\u2013":fmtInt(g.sb))+'</span>'+
+        '<span class="side b'+(bw?" w":"")+(aw?" l":"")+'" style="'+(bw?"color:"+g.b.color:"")+'">'+
+          esc(g.b.name)+'</span>'+
+        '</div>';
+    });
+    h+='</div>';
+  });
+  h+='</div>';
+  body.innerHTML=h;
+}
 /* ============================================================================
    12. STATUS REPORTING
    ========================================================================== */
@@ -2047,7 +2327,7 @@ function loadCSV(text,quiet,kind){
   if(kind){ SRC.kind=kind; if(kind!=="sheet") SRC.error=null; }
   if(kind==="paste"||kind==="file") SRC.at=new Date();
   STATE.view=null;                     /* force the scoped view to rebuild */
-  renderPeriodBar();
+  if(typeof syncPeriodBar==="function") syncPeriodBar(); else renderPeriodBar();
   renderBoard();
   updateStamp();
 
@@ -2096,21 +2376,28 @@ function updateStamp(){
 var PANELS=[
   {id:"road",      title:"Road to the Final",  note:"TOTAL SCORE = PROGRESS", span:12, render:renderRoad},
   {id:"matchday",  title:"Matchday",           note:"LATEST",                span:5,  render:renderMatchday},
-  {id:"table",     title:"League Table",       note:"",                      span:7,  render:renderTable},
+  {id:"table",     title:"Player Statistics",  note:"",                      span:7,  render:renderTable},
   {id:"monthly",   title:"Monthly Campaign",   note:"EVERY MONTH",           span:7,  render:renderMonthly},
   {id:"monthwins", title:"Monthly Titles",     note:"CHAMPIONS",             span:5,  render:renderMonthWins},
   {id:"history",   title:"Score History",      note:"",                      span:7,  render:renderHistory},
   {id:"rolling",   title:"Form Guide",         note:"",                      span:5,  render:renderRolling},
   {id:"podium",    title:"Winning Days Podium",note:"",                      span:7,  render:renderPodium},
-  {id:"squad",     title:"Squad",              note:"CUSTOMISE",             span:5,  render:renderSquad}
+  {id:"squad",     title:"Squad",              note:"CUSTOMISE",             span:5,  render:renderSquad},
+  /* --- League tab --- */
+  {id:"league",    title:"League Table",       note:"W / D / L",  tab:"league", span:7, render:renderLeague},
+  {id:"fixtures",  title:"Fixtures & Results", note:"10 ROUNDS",  tab:"league", span:5, render:renderFixtures}
 ];
+PANELS.forEach(function(p){ if(!p.tab) p.tab="dashboard"; });
 var PANEL_ORDER=PANELS.map(function(p){return p.id;});
 var byId=function(id){ return PANELS.filter(function(p){return p.id===id;})[0]; };
 
 function renderBoard(){
   var board=document.getElementById("board");
   board.innerHTML="";
-  PANEL_ORDER.forEach(function(id,i){
+  var shown=PANEL_ORDER.filter(function(id){
+    var def=byId(id); return def && def.tab===(STATE.tab||"dashboard");
+  });
+  shown.forEach(function(id,i){
     var def=byId(id); if(!def) return;
     var el=document.createElement("section");
     el.className="panel"; el.dataset.id=id;
@@ -2135,6 +2422,55 @@ function refreshAll(ids){
 }
 
 /* ============================================================================
+   14b. VIEW TABS
+   ========================================================================== */
+var TABS=[{k:"dashboard",label:"Dashboard"},{k:"league",label:"League"}];
+
+function renderTabs(){
+  var bar=document.getElementById("tabbar");
+  if(!bar) return;
+  bar.innerHTML=TABS.map(function(t){
+    return '<button class="tab'+((STATE.tab||"dashboard")===t.k?" on":"")+'" role="tab" '+
+      'aria-selected="'+((STATE.tab||"dashboard")===t.k)+'" data-tab="'+t.k+'">'+esc(t.label)+'</button>';
+  }).join("");
+  Array.prototype.forEach.call(bar.querySelectorAll("[data-tab]"),function(b){
+    b.addEventListener("click",function(){
+      STATE.tab=b.getAttribute("data-tab");
+      Store.set("cl-tab",STATE.tab);
+      renderTabs(); syncPeriodBar(); renderBoard();
+    });
+  });
+}
+/* The top bar shows the Race (period) selector on the dashboard and the Season
+   selector in the league, so there is exactly one selector on screen either way. */
+function syncPeriodBar(){
+  if((STATE.tab||"dashboard")==="league") renderSeasonBar();
+  else renderPeriodBar();
+}
+
+function renderSeasonBar(){
+  var bar=document.getElementById("periodbar");
+  if(!bar||!STATE.model) return;
+  var total=seasonCount(STATE.model), cur=currentSeason();
+  var chips="";
+  for(var i=0;i<total;i++){
+    chips+='<button class="pchip'+(cur===i?" on":"")+'" data-season="'+i+'">Season '+(i+1)+
+      (i===total-1?'<span class="livetag">LIVE</span>':'')+'</button>';
+  }
+  bar.style.display="";
+  bar.innerHTML='<span class="plabel">Season</span><div class="pchips">'+chips+'</div>'+
+    '<span class="phint">Each season is '+roundRobin(STATE.model.players.length).length+
+    ' rounds \u2014 one per matchday \u2014 with everyone meeting everyone twice.</span>';
+  Array.prototype.forEach.call(bar.querySelectorAll("[data-season]"),function(btn){
+    btn.addEventListener("click",function(){
+      STATE.season=+btn.getAttribute("data-season");
+      Store.set("cl-season",STATE.season);
+      renderSeasonBar(); refreshAll(["league","fixtures"]);
+    });
+  });
+}
+
+/* ============================================================================
    15. BOOT
    ========================================================================== */
 var SEED=(document.getElementById("seed-csv").textContent||"").replace(/^\n/,"");
@@ -2144,11 +2480,14 @@ document.getElementById("btn-refresh").addEventListener("click",function(){
   loadFromSource(SRC.url,false);
 });
 
-Promise.all([Store.get("cl-period"),Store.get("cl-src")])
-  .catch(function(){ return [null,null]; })
+Promise.all([Store.get("cl-period"),Store.get("cl-src"),Store.get("cl-tab"),Store.get("cl-season")])
+  .catch(function(){ return [null,null,null,null]; })
   .then(function(saved){
     var period=saved&&saved[0], url=saved&&saved[1];
     STATE.period=period||"all";
+    STATE.tab=(saved&&saved[2])||"dashboard";
+    STATE.season=(saved&&saved[3])!=null?saved[3]:null;
+    renderTabs(); syncPeriodBar();
     var src=(url||DATA_SOURCE.url||"").trim();
     if(src){
       SRC.url=src;

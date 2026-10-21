@@ -6,520 +6,353 @@
 <title>Champions League Leaderboard</title>
 <style>
 /* ============================================================
-   DESIGN TOKENS — UEFA Champions League broadcast palette:
-   midnight navy, electric blue, silver-white, starball motif.
+   DESIGN TOKENS — Champions League broadcast, current era:
+   near-black, white type, inverted active states, starball,
+   colour reserved for the players. No glows.
    ============================================================ */
 :root{
-  --night:#03081c;          /* page base            */
-  --deep:#071130;           /* panel base           */
-  --hull:#0b1a42;           /* raised surface       */
-  --hull-hi:#12265c;        /* hover / header       */
-  --rule:rgba(140,180,255,.17);
-  --rule-str:rgba(140,180,255,.34);
-  --ink:#eef4ff;
-  --ink-mid:#a9c0e8;
-  --ink-dim:#6b83b3;
-  --uefa:#1e6bff;           /* signature electric blue */
-  --uefa-lt:#4d94ff;
-  --silver:#c9d8f0;
-  --gold:#ffd25a;
-  --good:#3ee08a;
-  --bad:#ff5f6d;
-
+  --bg:#0a0a0b;
+  --panel:#121214;
+  --panel-2:#18181b;
+  --line:rgba(255,255,255,.08);
+  --line-2:rgba(255,255,255,.16);
+  --ink:#f4f4f5;
+  --ink-2:#b4b4bb;
+  --ink-3:#74747c;
+  --gold:#f5c542;
+  --good:#34d399;
+  --bad:#f87171;
   --font-display:"Bahnschrift","DIN Alternate","DIN Condensed","Roboto Condensed",
                  "Barlow Condensed","Archivo Narrow","Helvetica Neue Condensed",
                  "Arial Narrow",system-ui,sans-serif;
   --font-body:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   --font-hud:ui-monospace,"SF Mono","JetBrains Mono","Roboto Mono",Menlo,Consolas,monospace;
-
-  --gap:14px;
+  --gap:12px;
   --radius:14px;
 }
-
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
-body{
-  background:
-    radial-gradient(1300px 760px at 50% -18%,rgba(30,107,255,.30),transparent 62%),
-    radial-gradient(900px 620px at 6% 106%,rgba(88,40,190,.20),transparent 62%),
-    var(--night);
-  color:var(--ink);
-  font-family:var(--font-body);
-  min-height:100vh;
-  -webkit-font-smoothing:antialiased;
-}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);min-height:100vh;-webkit-font-smoothing:antialiased}
 .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid #fff;outline-offset:2px;border-radius:6px}
 
 /* ---------- Masthead ---------- */
 .masthead{
-  display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;
-  padding:20px clamp(14px,2.4vw,30px) 12px;
-  border-bottom:1px solid var(--rule);
-  background:linear-gradient(180deg,rgba(10,26,70,.95),rgba(3,8,28,0));
-  position:relative;overflow:hidden;
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  padding:22px clamp(14px,2.6vw,32px) 18px;background:#000;
+  border-bottom:1px solid var(--line);position:relative;overflow:hidden;
 }
-/* faint starball watermark */
+/* oversized starball, cropped off the right edge */
 .masthead::after{
-  content:"";position:absolute;right:-70px;top:-90px;width:320px;height:320px;
-  border-radius:50%;pointer-events:none;opacity:.07;
-  background:
-    radial-gradient(circle at 50% 12%,#fff 0 8%,transparent 9%),
-    radial-gradient(circle at 84% 40%,#fff 0 8%,transparent 9%),
-    radial-gradient(circle at 68% 84%,#fff 0 8%,transparent 9%),
-    radial-gradient(circle at 32% 84%,#fff 0 8%,transparent 9%),
-    radial-gradient(circle at 16% 40%,#fff 0 8%,transparent 9%);
+  content:"";position:absolute;right:-110px;top:50%;width:300px;height:300px;
+  transform:translateY(-50%);pointer-events:none;opacity:.07;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-50 -50 100 100'%3E%3Cg fill='white'%3E%3Cpath d='M0-46l3.2 9.9h10.4l-8.4 6.1 3.2 9.9L0-26.2l-8.4 6.1 3.2-9.9-8.4-6.1H-3.2z' transform='rotate(0)'/%3E%3Cpath d='M0-46l3.2 9.9h10.4l-8.4 6.1 3.2 9.9L0-26.2l-8.4 6.1 3.2-9.9-8.4-6.1H-3.2z' transform='rotate(45)'/%3E%3Cpath d='M0-46l3.2 9.9h10.4l-8.4 6.1 3.2 9.9L0-26.2l-8.4 6.1 3.2-9.9-8.4-6.1H-3.2z' transform='rotate(90)'/%3E%3Cpath d='M0-46l3.2 9.9h10.4l-8.4 6.1 3.2 9.9L0-26.2l-8.4 6.1 3.2-9.9-8.4-6.1H-3.2z' transform='rotate(135)'/%3E%3Cpath d='M0-46l3.2 9.9h10.4l-8.4 6.1 3.2 9.9L0-26.2l-8.4 6.1 3.2-9.9-8.4-6.1H-3.2z' transform='rotate(180)'/%3E%3Cpath d='M0-46l3.2 9.9h10.4l-8.4 6.1 3.2 9.9L0-26.2l-8.4 6.1 3.2-9.9-8.4-6.1H-3.2z' transform='rotate(225)'/%3E%3Cpath d='M0-46l3.2 9.9h10.4l-8.4 6.1 3.2 9.9L0-26.2l-8.4 6.1 3.2-9.9-8.4-6.1H-3.2z' transform='rotate(270)'/%3E%3Cpath d='M0-46l3.2 9.9h10.4l-8.4 6.1 3.2 9.9L0-26.2l-8.4 6.1 3.2-9.9-8.4-6.1H-3.2z' transform='rotate(315)'/%3E%3C/g%3E%3C/svg%3E") center/contain no-repeat;
 }
-.brandmark{display:flex;align-items:center;gap:13px}
-.brandmark svg{width:42px;height:42px;flex:none}
+.brandmark{display:flex;align-items:center;gap:14px;position:relative;z-index:1}
+.brandmark svg{width:46px;height:46px;flex:none}
 .brandtext h1{
-  font-family:var(--font-display);font-stretch:condensed;
-  font-size:clamp(25px,3.3vw,38px);line-height:.92;margin:0;
-  letter-spacing:.03em;text-transform:uppercase;font-weight:700;
+  font-family:var(--font-display);font-stretch:condensed;font-weight:700;
+  font-size:clamp(26px,3.4vw,40px);line-height:.9;margin:0;letter-spacing:.015em;text-transform:uppercase;
 }
-.brandtext h1 em{font-style:normal;color:var(--uefa-lt)}
-.brandtext .sub{
-  font-family:var(--font-hud);font-size:10.5px;letter-spacing:.3em;
-  color:var(--ink-dim);text-transform:uppercase;margin-top:5px;
-}
+.brandtext h1 em{font-style:normal;color:var(--ink-3)}
+.brandtext .sub{font-family:var(--font-hud);font-size:10px;letter-spacing:.32em;color:var(--ink-3);text-transform:uppercase;margin-top:7px}
 .masthead .spacer{flex:1 1 auto}
-.stamp{
-  font-family:var(--font-hud);font-size:11px;color:var(--ink-mid);
-  text-align:right;line-height:1.65;letter-spacing:.06em;position:relative;z-index:1;
-}
+.toolbar{display:flex;gap:8px;position:relative;z-index:1}
+.stamp{font-family:var(--font-hud);font-size:10.5px;color:var(--ink-2);text-align:right;line-height:1.7;letter-spacing:.05em;position:relative;z-index:1}
 .stamp b{color:var(--ink);font-weight:600}
-.livedot{
-  display:inline-block;width:7px;height:7px;border-radius:50%;
-  background:var(--good);margin-right:6px;vertical-align:middle;
-  box-shadow:0 0 0 0 rgba(62,224,138,.7);animation:pulse 2.4s infinite;
-}
-@keyframes pulse{
-  70%{box-shadow:0 0 0 9px rgba(62,224,138,0)}
-  100%{box-shadow:0 0 0 0 rgba(62,224,138,0)}
-}
-.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:relative;z-index:1}
+.livedot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--good);margin-right:6px;vertical-align:middle;animation:pulse 2.4s infinite}
+@keyframes pulse{50%{opacity:.35}}
 
 /* ---------- Buttons ---------- */
-button{font:inherit;color:inherit}
 .btn{
-  font-family:var(--font-display);font-stretch:condensed;text-transform:uppercase;
-  letter-spacing:.09em;font-size:12.5px;font-weight:600;
-  background:var(--hull);border:1px solid var(--rule-str);color:var(--ink-mid);
-  padding:8px 14px;border-radius:8px;cursor:pointer;
-  transition:background .16s,color .16s,border-color .16s,transform .06s;
+  font-family:var(--font-display);font-stretch:condensed;font-weight:700;text-transform:uppercase;
+  letter-spacing:.1em;font-size:12px;background:transparent;border:1px solid var(--line-2);color:var(--ink);
+  padding:8px 15px;border-radius:999px;cursor:pointer;transition:background .15s,color .15s;
 }
-.btn:hover{background:var(--hull-hi);color:var(--ink);border-color:var(--uefa-lt)}
-.btn:active{transform:translateY(1px)}
-.btn.primary{background:var(--uefa);border-color:var(--uefa-lt);color:#fff}
-.btn.primary:hover{background:#2f7cff}
-.btn.sm{padding:5px 10px;font-size:11px}
-:focus-visible{outline:2px solid var(--uefa-lt);outline-offset:2px;border-radius:6px}
+.btn:hover{background:#fff;color:#000}
+.btn.primary{background:#fff;color:#000;border-color:#fff}
+.btn.sm{padding:5px 11px;font-size:11px}
 
-/* ---------- Bento grid ---------- */
-.board{
-  display:grid;grid-template-columns:repeat(12,1fr);
-  gap:var(--gap);padding:var(--gap) clamp(14px,2.4vw,30px) 60px;
-  align-items:start;
-}
-.panel{
-  grid-column:span var(--span,6);
-  background:linear-gradient(180deg,rgba(15,36,92,.7),rgba(5,12,34,.92));
-  border:1px solid var(--rule);border-radius:var(--radius);
-  overflow:hidden;position:relative;
-  box-shadow:0 10px 34px rgba(0,0,0,.5);
-  opacity:0;transform:translateY(14px);
-  animation:panelIn .5s cubic-bezier(.2,.75,.3,1) forwards;
-}
-@keyframes panelIn{to{opacity:1;transform:none}}
-.phead{
-  display:flex;align-items:center;gap:9px;
-  padding:10px 12px;background:rgba(12,30,78,.8);
-  border-bottom:1px solid var(--rule);
-}
-.phead::before{
-  content:"";width:3px;height:15px;border-radius:2px;flex:none;
-  background:linear-gradient(180deg,var(--uefa-lt),var(--uefa));
-}
-.ptitle{
-  font-family:var(--font-display);font-stretch:condensed;text-transform:uppercase;
-  letter-spacing:.12em;font-size:13px;font-weight:700;color:var(--ink);
-}
-.pnote{font-family:var(--font-hud);font-size:10px;color:var(--ink-dim);letter-spacing:.1em}
-.phead .spacer{flex:1}
-.pbody{padding:13px}
-
-/* ---------- Help tooltips ---------- */
-.help{position:relative;display:inline-flex;vertical-align:middle}
-.help > .q{
-  width:15px;height:15px;border-radius:50%;border:1px solid var(--rule-str);
-  background:var(--hull);color:var(--ink-dim);font-family:var(--font-hud);
-  font-size:9.5px;display:grid;place-items:center;cursor:help;padding:0;
-}
-.help > .q:hover{color:var(--ink);border-color:var(--uefa-lt)}
-.help .tip{
-  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(4px);
-  width:250px;background:#0a1a44;border:1px solid var(--rule-str);border-radius:9px;
-  padding:9px 11px;font-family:var(--font-body);font-size:11.5px;line-height:1.5;
-  color:var(--ink-mid);opacity:0;pointer-events:none;transition:.16s;z-index:60;
-  box-shadow:0 12px 30px rgba(0,0,0,.7);text-transform:none;letter-spacing:0;font-weight:400;
-}
-.help .tip b{color:var(--ink)}
-.help .tip code{font-family:var(--font-hud);font-size:10.5px;color:var(--uefa-lt)}
-.help:hover .tip,.help > .q:focus-visible + .tip{opacity:1;transform:translateX(-50%)}
-
-/* ---------- Tables ---------- */
-table{width:100%;border-collapse:collapse}
-th,td{text-align:right;padding:7px 6px;white-space:nowrap}
-th:first-child,td:first-child{text-align:left}
-thead th{
-  font-family:var(--font-display);font-stretch:condensed;text-transform:uppercase;
-  letter-spacing:.1em;font-size:10.5px;color:var(--ink-dim);font-weight:600;
-  border-bottom:1px solid var(--rule-str);padding-bottom:8px;
-}
-tbody tr{border-bottom:1px solid rgba(140,180,255,.09)}
-tbody tr:last-child{border-bottom:0}
-tbody td{font-size:13px;color:var(--ink-mid)}
-td.big{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;
-  font-size:19px;color:var(--ink);letter-spacing:.01em;
-}
-/* qualification zones, like a real CL group table */
-tbody tr.q1{background:linear-gradient(90deg,rgba(30,107,255,.16),transparent 70%)}
-tbody tr.q2{background:linear-gradient(90deg,rgba(30,107,255,.07),transparent 70%)}
-.zonekey{
-  display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;
-  font-family:var(--font-hud);font-size:9.5px;color:var(--ink-dim);letter-spacing:.06em;
-}
-.zonekey i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
-.who{display:flex;align-items:center;gap:8px}
-.chip{width:9px;height:9px;border-radius:2px;flex:none;box-shadow:0 0 9px currentColor}
-.who .nm{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;
-  font-size:15px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink);
-}
-.pos{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:15px;
-  color:var(--ink-dim);width:20px;display:inline-block;
-}
-.sub{font-family:var(--font-hud);font-size:9.5px;color:var(--ink-dim);letter-spacing:.06em}
-.trend{font-family:var(--font-hud);font-size:11px}
-.up{color:var(--good)} .down{color:var(--bad)} .flat{color:var(--ink-dim)}
-
-/* ---------- Matchday board ---------- */
-.match-strip{
-  display:grid;grid-template-columns:26px 1fr auto 78px;gap:9px;align-items:center;
-  background:linear-gradient(90deg,#050f2c,#081842);
-  border:1px solid rgba(140,180,255,.15);border-left:3px solid var(--rule-str);
-  border-radius:8px;padding:9px 11px;margin-bottom:7px;position:relative;overflow:hidden;
-}
-.match-strip.win{border-left-color:var(--gold);background:linear-gradient(90deg,rgba(255,210,90,.12),#081842 60%)}
-.match-strip .lane{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;
-  font-size:16px;color:var(--ink-dim);
-}
-.flap{display:flex;gap:2px}
-.flap span{
-  display:inline-grid;place-items:center;min-width:15px;height:26px;padding:0 1px;
-  background:linear-gradient(180deg,#16336f 0 48%,#0a1c48 52% 100%);
-  border-radius:3px;font-family:var(--font-display);font-stretch:condensed;
-  font-weight:700;font-size:18px;color:#fff;
-  box-shadow:inset 0 -1px 0 rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.08);
-  position:relative;
-}
-.flap span::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.5)}
-.flap.name span{min-width:13px;font-size:15px;color:var(--ink)}
-.flap.sc span{font-size:19px}
-.status{font-family:var(--font-hud);font-size:9.5px;letter-spacing:.11em;text-align:right}
-.st-win{color:var(--gold)} .st-in{color:var(--ink-dim)} .st-wait{color:#ff9f43}
-
-/* ---------- Road to the Final ---------- */
-.pitch-wrap{position:relative;border-radius:10px;overflow:hidden;background:#030a1e}
-.pitch-wrap svg{display:block;width:100%;height:auto}
-.hud-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:10px}
-.hud{
-  border:1px solid var(--rule);border-radius:9px;padding:8px 10px;
-  background:linear-gradient(180deg,rgba(16,38,96,.85),rgba(6,14,38,.85));
-  position:relative;overflow:hidden;
-}
-.hud::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2.5px;background:currentColor}
-.hud .cs{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:13px;
-  text-transform:uppercase;letter-spacing:.09em;display:flex;align-items:center;gap:6px;
-}
-.hud dl{display:grid;grid-template-columns:auto 1fr;gap:1px 8px;margin:6px 0 0;
-  font-family:var(--font-hud);font-size:10px;color:var(--ink-dim);letter-spacing:.07em}
-.hud dd{margin:0;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
-.hud dt{white-space:nowrap}
-
-/* ---------- Trophy podium ---------- */
-.podium-scene{position:relative;margin:2px 0 4px}
-.podium-scene svg{display:block;width:100%;height:auto;overflow:visible}
-/* Entrance animation lives on an inner <g> with no transform attribute, so it
-   can never override the positioning transform on its parent. */
-.kit-enter{animation:kitIn .55s ease-out both}
-@keyframes kitIn{from{opacity:0}to{opacity:1}}
-.streakbar{
-  display:flex;gap:8px;flex-wrap:wrap;margin-top:11px;padding-top:10px;
-  border-top:1px solid var(--rule);
-}
-.streakbar .s{
-  font-family:var(--font-hud);font-size:10px;color:var(--ink-dim);letter-spacing:.06em;
-  border:1px solid var(--rule);border-radius:20px;padding:3px 9px;
-}
-.streakbar .s b{color:var(--ink);font-weight:600}
-
-
-/* ---------- View tabs ---------- */
-.tabbar{
-  display:flex;gap:4px;align-items:flex-end;
-  padding:0 clamp(14px,2.4vw,30px);
-  border-bottom:1px solid var(--rule);background:rgba(5,14,40,.6);
-}
+/* ---------- Tabs ---------- */
+.tabbar{display:flex;gap:2px;padding:0 clamp(14px,2.6vw,32px);background:#000;border-bottom:1px solid var(--line)}
 .tab{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:13.5px;
-  text-transform:uppercase;letter-spacing:.12em;
-  background:transparent;border:0;border-bottom:2px solid transparent;
-  color:var(--ink-dim);padding:11px 16px;cursor:pointer;transition:color .15s,border-color .15s;
+  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:14px;text-transform:uppercase;
+  letter-spacing:.12em;background:transparent;border:0;border-bottom:3px solid transparent;color:var(--ink-3);
+  padding:13px 16px 11px;cursor:pointer;transition:color .15s,border-color .15s;
 }
-.tab:hover{color:var(--ink-mid)}
-.tab.on{color:var(--ink);border-bottom-color:var(--uefa-lt)}
+.tab:hover{color:var(--ink-2)}
+.tab.on{color:#fff;border-bottom-color:#fff}
 
-/* ---------- Form badges ---------- */
-.form{display:inline-flex;gap:3px}
-.form i{
-  width:17px;height:17px;border-radius:4px;display:grid;place-items:center;
-  font-style:normal;font-family:var(--font-display);font-weight:700;font-size:10.5px;color:#04122e;
+/* ---------- Selector bar (race / season) ---------- */
+.periodbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:11px clamp(14px,2.6vw,32px);background:var(--bg);border-bottom:1px solid var(--line)}
+.plabel{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--ink-3)}
+.pchips{display:flex;gap:6px;flex-wrap:wrap}
+.pchip{
+  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:12.5px;text-transform:uppercase;
+  letter-spacing:.08em;background:transparent;border:1px solid var(--line-2);color:var(--ink-2);
+  padding:6px 13px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:background .15s,color .15s;
 }
-.form .fW{background:var(--good)}
-.form .fD{background:#8fa6c9}
-.form .fL{background:var(--bad)}
-
-/* ---------- Fixtures ---------- */
-.rounds{display:grid;gap:10px}
-.round{border:1px solid var(--rule);border-radius:10px;padding:9px 11px;background:rgba(8,20,56,.55)}
-.round.future{opacity:.5}
-.rhead{
-  display:flex;align-items:center;gap:9px;margin-bottom:7px;
-  padding-bottom:6px;border-bottom:1px solid var(--rule);
-}
-.rno{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:12.5px;
-  text-transform:uppercase;letter-spacing:.1em;color:var(--ink);
-}
-.rdate{font-family:var(--font-hud);font-size:9.5px;color:var(--ink-dim);letter-spacing:.07em;margin-left:auto}
-.fix{
-  display:grid;grid-template-columns:1fr auto auto auto 1fr;gap:8px;align-items:center;
-  padding:4px 0;font-size:12.5px;
-}
-.fix .side{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:13.5px;
-  text-transform:uppercase;letter-spacing:.05em;color:var(--ink-mid);
-}
-.fix .side.a{text-align:right}
-.fix .side.l{opacity:.5}
-.fix .sc{font-family:var(--font-hud);font-variant-numeric:tabular-nums;font-size:12px;color:var(--ink)}
-.fix .vs{
-  font-family:var(--font-hud);font-size:9px;letter-spacing:.08em;text-align:center;
-  min-width:56px;padding:2.5px 5px;border-radius:4px;border:1px solid var(--rule);color:var(--ink-dim);
-}
-.fix .vs.win{color:var(--good);border-color:rgba(62,224,138,.45)}
-.fix .vs.draw{color:#c7d6ee;border-color:var(--rule-str)}
-.fix .vs.void{color:#ff9f43;border-color:rgba(255,159,67,.4)}
-@media (max-width:560px){
-  .fix{grid-template-columns:1fr auto 1fr;row-gap:2px}
-  .fix .vs{grid-column:1/-1;order:3;min-width:0}
-}
+.pchip:hover{color:#fff;border-color:rgba(255,255,255,.4)}
+.pchip.on{background:#fff;color:#000;border-color:#fff}
+.livetag{font-family:var(--font-hud);font-size:8px;letter-spacing:.14em;font-weight:700;background:var(--good);color:#002914;border-radius:3px;padding:1.5px 4px}
+.livetag.next{background:var(--ink-3);color:#000}
+.livetag.sm{margin-left:6px}
+.phint{font-family:var(--font-hud);font-size:9.5px;color:var(--ink-3);letter-spacing:.05em;margin-left:auto;max-width:360px;line-height:1.5;text-align:right}
+.scopetag{font-family:var(--font-hud);font-size:9px;letter-spacing:.12em;color:var(--ink);border:1px solid var(--line-2);border-radius:4px;padding:1.5px 6px;margin-left:7px}
 
 /* ---------- Alert banner ---------- */
 .alertbar{display:none}
-.alertbar.show{
-  display:flex;align-items:flex-start;gap:10px;
-  padding:11px clamp(14px,2.4vw,30px);
-  font-size:12.5px;line-height:1.55;border-bottom:1px solid;
-}
-.alertbar.err{background:rgba(255,95,109,.1);border-color:rgba(255,95,109,.45);color:#ffc0c6}
-.alertbar.warn{background:rgba(255,159,67,.1);border-color:rgba(255,159,67,.4);color:#ffd7a8}
-.alertbar .ico{
-  flex:none;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;
-  background:currentColor;color:#071130;font-weight:700;font-size:11px;
-  font-family:var(--font-hud);margin-top:1px;
-}
+.alertbar.show{display:flex;align-items:flex-start;gap:10px;padding:11px clamp(14px,2.6vw,32px);font-size:12.5px;line-height:1.55;border-bottom:1px solid}
+.alertbar.err{background:#2a0f12;border-color:#5c1d23;color:#ffc9cd}
+.alertbar.warn{background:#2a1c0a;border-color:#5c3f12;color:#ffdcae}
+.alertbar .ico{flex:none;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;background:currentColor;color:#000;font-weight:700;font-size:11px;font-family:var(--font-hud);margin-top:1px}
 .alertbar .txt{flex:1}
-.alertbar .txt b{
-  display:block;font-family:var(--font-display);font-stretch:condensed;
-  text-transform:uppercase;letter-spacing:.09em;font-size:12.5px;margin-bottom:2px;
-}
-.alertbar .alert-x{
-  flex:none;background:transparent;border:1px solid currentColor;border-radius:6px;
-  width:22px;height:22px;cursor:pointer;color:inherit;opacity:.7;font-size:11px;
-  display:grid;place-items:center;
-}
-.alertbar .alert-x:hover{opacity:1}
+.alertbar .txt b{display:block;font-family:var(--font-display);font-stretch:condensed;text-transform:uppercase;letter-spacing:.09em;font-size:12.5px;margin-bottom:2px}
+.alertbar .alert-x{flex:none;background:transparent;border:1px solid currentColor;border-radius:999px;width:22px;height:22px;cursor:pointer;color:inherit;opacity:.7;font-size:11px;display:grid;place-items:center}
 
-/* ---------- Period selector ---------- */
-.periodbar{
-  display:flex;align-items:center;gap:11px;flex-wrap:wrap;
-  padding:9px clamp(14px,2.4vw,30px);
-  border-bottom:1px solid var(--rule);background:rgba(7,19,50,.7);
+/* ---------- Board + panels ---------- */
+.board{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--gap);padding:var(--gap) clamp(14px,2.6vw,32px) 60px;align-items:start}
+.panel{
+  grid-column:span var(--span,6);background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  overflow:hidden;position:relative;opacity:0;transform:translateY(10px);animation:panelIn .45s cubic-bezier(.2,.75,.3,1) forwards;
 }
-.periodbar .plabel{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:11px;
-  text-transform:uppercase;letter-spacing:.15em;color:var(--ink-dim);
+@keyframes panelIn{to{opacity:1;transform:none}}
+.phead{display:flex;align-items:center;gap:10px;padding:13px 16px 12px;border-bottom:1px solid var(--line)}
+.ptitle{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:#fff}
+.pnote{font-family:var(--font-hud);font-size:9.5px;color:var(--ink-3);letter-spacing:.1em}
+.pbody{padding:14px 16px 16px}
+.kicker{font-family:var(--font-hud);font-size:9.5px;color:var(--ink-3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.note{font-size:12px;line-height:1.5;color:var(--ink-2);background:var(--panel-2);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:8px;padding:8px 11px;margin-bottom:11px}
+.note b{color:var(--ink)}
+.empty{padding:26px 14px;text-align:center;color:var(--ink-3);font-size:12.5px;line-height:1.6;border:1px dashed var(--line-2);border-radius:10px}
+.sub{font-family:var(--font-hud);font-size:9.5px;color:var(--ink-3);letter-spacing:.05em}
+.up{color:var(--good)} .down{color:var(--bad)} .flat{color:var(--ink-3)}
+.trend{font-family:var(--font-hud);font-size:11px}
+
+/* ---------- Help tooltips ---------- */
+.help{position:relative;display:inline-flex;vertical-align:middle}
+.help > .q{width:15px;height:15px;border-radius:50%;border:1px solid var(--line-2);background:transparent;color:var(--ink-3);font-family:var(--font-hud);font-size:9px;display:grid;place-items:center;cursor:help;padding:0}
+.help > .q:hover{color:#000;background:#fff;border-color:#fff}
+.help .tip{
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(4px);
+  width:260px;background:#fff;color:#18181b;border-radius:10px;padding:10px 12px;font-family:var(--font-body);
+  font-size:11.5px;line-height:1.5;opacity:0;pointer-events:none;transition:.15s;z-index:60;
+  box-shadow:0 14px 34px rgba(0,0,0,.6);text-transform:none;letter-spacing:0;font-weight:400;text-align:left;white-space:normal;
 }
-.pchips{display:flex;gap:6px;flex-wrap:wrap}
-.pchip{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:600;font-size:12px;
-  text-transform:uppercase;letter-spacing:.08em;
-  background:var(--hull);border:1px solid var(--rule-str);color:var(--ink-mid);
-  padding:6px 12px;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:6px;
-  transition:background .15s,color .15s,border-color .15s;
-}
-.pchip:hover{background:var(--hull-hi);color:var(--ink)}
-.pchip.on{background:var(--uefa);border-color:var(--uefa-lt);color:#fff}
-.livetag{
-  font-family:var(--font-hud);font-size:8px;letter-spacing:.12em;
-  background:var(--good);color:#04220f;border-radius:3px;padding:1.5px 4px;font-weight:700;
-}
-.livetag.sm{margin-left:6px;transform:scale(.9)}
-.phint{
-  font-family:var(--font-hud);font-size:9.5px;color:var(--ink-dim);letter-spacing:.05em;
-  margin-left:auto;max-width:340px;line-height:1.5;
-}
-.scopetag{
-  font-family:var(--font-hud);font-size:9px;letter-spacing:.11em;color:var(--uefa-lt);
-  border:1px solid rgba(77,148,255,.45);border-radius:4px;padding:1.5px 6px;margin-left:7px;
-}
+.help .tip b{color:#000}
+.help .tip code{font-family:var(--font-hud);font-size:10.5px;background:#f0f0f2;padding:0 3px;border-radius:3px}
+.help:hover .tip,.help > .q:focus-visible + .tip{opacity:1;transform:translateX(-50%)}
+
+/* ---------- Tables ---------- */
+.tscroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:right;padding:8px 7px;white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--ink-3);border-bottom:1px solid var(--line-2);padding-bottom:9px}
+tbody tr{border-bottom:1px solid var(--line)}
+tbody tr:last-child{border-bottom:0}
+tbody td{font-size:13px;color:var(--ink-2)}
+td.big{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:19px;color:#fff}
+.pos{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:15px;color:var(--ink-3)}
+tbody tr.q1 td,tbody tr.lead td{background:rgba(255,255,255,.045)}
+tbody tr.q2 td{background:rgba(255,255,255,.02)}
+tbody tr.q1 .pos,tbody tr.lead .pos{color:#fff}
+.zonekey{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-family:var(--font-hud);font-size:9.5px;color:var(--ink-3);letter-spacing:.05em}
+.zonekey i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.who{display:flex;align-items:center;gap:8px}
+.chip{width:8px;height:8px;border-radius:50%;flex:none}
+.who .nm{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:#fff}
+/* player name with a kit-colour dot, used across the league panels */
+.pname{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:14.5px;text-transform:uppercase;letter-spacing:.04em;color:#fff;white-space:nowrap}
+.pname::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--pc);flex:none}
+
+/* ---------- League table ---------- */
+.ltable th:nth-child(2),.ltable td:nth-child(2){text-align:left}
+.ltable td.pts{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:20px;color:#fff}
+.ltable tbody tr.lead td.pts{color:var(--gold)}
+.form{display:inline-flex;gap:3px}
+.form i{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-family:var(--font-display);font-weight:700;font-size:10px;color:#000}
+.form .fW{background:var(--good)} .form .fD{background:#a1a1aa} .form .fL{background:var(--bad)}
+.rulestrip{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.rulestrip span{font-family:var(--font-hud);font-size:9.5px;letter-spacing:.06em;color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:3px 9px}
+.rulestrip .chg{border-color:var(--gold);color:var(--gold)}
+.tag{font-family:var(--font-hud);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--line-2);color:var(--ink-2);border-radius:3px;padding:1px 5px;margin-left:7px}
+.tag.live{background:var(--good);border-color:var(--good);color:#002914;font-weight:700}
+
+/* ---------- Fixtures ---------- */
+.rounds{display:grid;gap:8px;max-height:640px;overflow-y:auto;padding-right:4px;scrollbar-width:thin}
+.round{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--panel-2)}
+.round.latest{border-color:rgba(255,255,255,.4)}
+.round.future{opacity:.45}
+.rhead{display:flex;align-items:center;gap:6px;margin-bottom:6px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+.rno{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.1em;color:#fff}
+.rdate{font-family:var(--font-hud);font-size:9.5px;color:var(--ink-3);letter-spacing:.06em;margin-left:auto}
+.fix{display:grid;grid-template-columns:1fr auto auto auto 1fr;gap:9px;align-items:center;padding:4px 0}
+.fix .side{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:13.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-2)}
+.fix .side.a{text-align:right}
+.fix .side.l{color:var(--ink-3)}
+.fix .sc{font-family:var(--font-hud);font-variant-numeric:tabular-nums;font-size:12px;color:var(--ink-3)}
+.fix .sc.w{color:#fff;font-weight:600}
+.fix .vs{font-family:var(--font-hud);font-size:9px;letter-spacing:.08em;text-align:center;min-width:58px;padding:3px 6px;border-radius:999px;border:1px solid var(--line-2);color:var(--ink-3);text-transform:uppercase}
+.fix .vs.win{background:#fff;color:#000;border-color:#fff;font-weight:700}
+.fix .vs.draw{color:var(--ink);border-color:rgba(255,255,255,.4)}
+.fix .vs.void{color:#fbbf6b;border-color:rgba(251,191,107,.45)}
+
+/* ---------- Position by round ---------- */
+.bump svg{display:block;width:100%;height:auto;overflow:visible}
+.bump .gridln{stroke:rgba(255,255,255,.07)}
+.bump .axl{fill:var(--ink-3);font-family:var(--font-hud);font-size:11px}
+.bump .axl.dim{opacity:.35}
+.bump .bumpname{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+
+/* ---------- Season records ---------- */
+.recs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.rec{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.rlabel{font-family:var(--font-hud);font-size:9px;color:var(--ink-3);letter-spacing:.12em;text-transform:uppercase}
+.rval{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:26px;line-height:1.1;margin:3px 0 4px;color:#fff;font-variant-numeric:tabular-nums}
+.rdet{font-size:11.5px;color:var(--ink-2);line-height:1.7}
+.rdet .pname{font-size:12.5px}
+.dbars{display:grid;gap:6px}
+.dbar{display:grid;grid-template-columns:78px 1fr 24px;gap:9px;align-items:center}
+.dbar .dn{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:12.5px;text-transform:uppercase;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dtrack{height:6px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.dtrack i{display:block;height:100%;border-radius:99px}
+.dbar .dv{font-family:var(--font-hud);font-size:11px;color:var(--ink);text-align:right}
+
+/* ---------- Head-to-head ---------- */
+.h2h th,.h2h td{padding:7px 6px;text-align:center}
+.h2h tbody th{text-align:left;border-bottom:1px solid var(--line)}
+.h2h .vlab{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase}
+.h2h td{font-family:var(--font-hud);font-size:11.5px}
+.h2h td .wdl{display:inline-block;padding:3px 7px;border-radius:6px}
+.h2h td.hwin .wdl{background:rgba(52,211,153,.16);color:#a7f3d0}
+.h2h td.hloss .wdl{background:rgba(248,113,113,.14);color:#fecaca}
+.h2h td.heven .wdl{background:rgba(255,255,255,.07);color:var(--ink)}
+.h2h td.self{background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(255,255,255,.04) 5px 6px)}
+.h2h td.never{color:var(--ink-3)}
+.h2h td.tot .wdl{color:#fff;font-weight:600;border:1px solid var(--line-2)}
+
+/* ---------- Hall of fame ---------- */
+.hof{display:grid;gap:6px}
+.hrow{display:grid;grid-template-columns:34px 1fr auto;grid-template-areas:"s w p" "s d d";column-gap:10px;row-gap:2px;align-items:center;padding:9px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px}
+.hrow.open{border-style:dashed}
+.hs{grid-area:s;font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:17px;color:var(--ink-3)}
+.hw{grid-area:w;display:flex;align-items:center;gap:6px;min-width:0}
+.hp{grid-area:p;font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:15px;color:#fff}
+.hp em{font-style:normal;font-family:var(--font-hud);font-size:9px;color:var(--ink-3);margin-left:3px}
+.hd{grid-area:d;font-family:var(--font-hud);font-size:9.5px;color:var(--ink-3);letter-spacing:.04em}
+.star{color:var(--gold)}
+.titles{display:grid;gap:6px}
+.tt{display:flex;align-items:center;gap:10px}
+.tt .stars{color:var(--gold);letter-spacing:2px;font-size:13px;flex:1}
+.tt .tn{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:20px;color:#fff}
+
+/* ---------- Matchday board ---------- */
+.match-strip{display:grid;grid-template-columns:24px 1fr auto 80px;gap:10px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:6px}
+.match-strip.win{border-color:var(--gold)}
+.match-strip .lane{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:16px}
+.flap{display:flex;gap:2px}
+.flap span{display:inline-grid;place-items:center;min-width:15px;height:26px;padding:0 1px;background:#000;border:1px solid #2a2a30;border-radius:3px;font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:18px;color:#fff;position:relative}
+.flap span::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#232328}
+.flap.name span{min-width:13px;font-size:15px}
+.flap.sc span{font-size:19px}
+.status{font-family:var(--font-hud);font-size:9.5px;letter-spacing:.11em;text-align:right}
+.st-win{color:var(--gold)} .st-in{color:var(--ink-3)} .st-wait{color:#fbbf6b}
+
+/* ---------- Road to the final ---------- */
+.pitch-wrap{position:relative;border-radius:10px;overflow:hidden;background:#000;border:1px solid var(--line)}
+.pitch-wrap svg{display:block;width:100%;height:auto}
+.hud-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:10px}
+.hud{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:9px 11px;position:relative;overflow:hidden}
+.hud::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:currentColor}
+.hud .cs{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:13.5px;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:6px}
+.hud dl{display:grid;grid-template-columns:auto 1fr;gap:1px 8px;margin:6px 0 0;font-family:var(--font-hud);font-size:10px;color:var(--ink-3);letter-spacing:.06em}
+.hud dt{white-space:nowrap}
+.hud dd{margin:0;text-align:right;color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* ---------- Podium ---------- */
+.podium-scene{margin:2px 0 4px}
+.podium-scene svg{display:block;width:100%;height:auto;overflow:visible}
+.kit-enter{animation:kitIn .5s ease-out both}
+@keyframes kitIn{from{opacity:0}to{opacity:1}}
+.streakbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;padding-top:11px;border-top:1px solid var(--line)}
+.streakbar .s{font-family:var(--font-hud);font-size:10px;color:var(--ink-2);letter-spacing:.05em;border:1px solid var(--line-2);border-radius:999px;padding:3px 10px}
+.streakbar .s b{color:#fff;font-weight:600}
 
 /* ---------- Monthly panels ---------- */
-.mname{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:14px;
-  text-transform:uppercase;letter-spacing:.05em;color:var(--ink);
-}
-.champs{display:grid;gap:9px}
-.champrow{
-  display:grid;grid-template-columns:34px 1fr auto;gap:11px;align-items:center;
-  border:1px solid var(--rule);border-radius:10px;padding:9px 11px;
-  background:linear-gradient(90deg,rgba(255,255,255,.04),transparent 60%);
-  position:relative;overflow:hidden;
-}
+.mname{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.04em;color:#fff}
+.champs{display:grid;gap:8px}
+.champrow{display:grid;grid-template-columns:34px 1fr auto;gap:11px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;position:relative;overflow:hidden}
 .champrow::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:currentColor}
-.cbadge{
-  width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:17px;
-  background:rgba(255,255,255,.05);border:1px solid currentColor;
-}
-.cname{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:14.5px;
-  text-transform:uppercase;letter-spacing:.06em;color:var(--ink);
-}
-.cbar{height:5px;border-radius:3px;background:rgba(140,180,255,.15);margin:5px 0;overflow:hidden}
-.cbar span{
-  display:block;height:100%;border-radius:3px;background:currentColor;
-  box-shadow:0 0 10px currentColor;transition:width .8s cubic-bezier(.2,.8,.3,1);
-}
+.cbadge{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:16px;border:1px solid currentColor}
+.cname{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:14.5px;text-transform:uppercase;letter-spacing:.05em;color:#fff}
+.cbar{height:5px;border-radius:99px;background:rgba(255,255,255,.08);margin:6px 0;overflow:hidden}
+.cbar span{display:block;height:100%;border-radius:99px;background:currentColor;transition:width .8s}
 .pips{display:flex;gap:3px;flex-wrap:wrap}
-.pip{width:9px;height:9px;border-radius:50%;background:rgba(140,180,255,.18);border:1px solid var(--rule-str)}
-.pip.on{border-color:transparent;box-shadow:0 0 7px currentColor}
-.ccount{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:30px;
-  line-height:1;color:currentColor;text-shadow:0 0 14px currentColor;min-width:26px;text-align:right;
-}
-.livebox{
-  margin-top:11px;padding:10px 12px;border:1px solid var(--rule-str);border-radius:10px;
-  background:rgba(30,107,255,.09);
-}
-.lbhead{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:12px;
-  text-transform:uppercase;letter-spacing:.1em;color:var(--ink-mid);
-  display:flex;align-items:center;gap:8px;
-}
-.lbmain{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:17px;
-  margin-top:5px;color:var(--ink);
-}
-.lbsub{font-family:var(--font-body);font-size:11.5px;font-weight:400;color:var(--ink-dim)}
+.pip{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.1)}
+.pip.on{background:currentColor}
+.ccount{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:30px;line-height:1;color:currentColor;min-width:26px;text-align:right}
+.livebox{margin-top:11px;padding:10px 12px;border:1px dashed var(--line-2);border-radius:10px}
+.lbhead{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+.lbmain{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:17px;margin-top:5px;color:#fff}
+.lbsub{font-family:var(--font-body);font-size:11.5px;font-weight:400;color:var(--ink-3)}
 
-/* ---------- Squad editor ---------- */
-.crew{display:grid;gap:9px}
-.crewrow{
-  display:grid;grid-template-columns:30px 1fr 34px;gap:9px;align-items:center;
-  border:1px solid var(--rule);border-radius:9px;padding:8px 10px;background:rgba(10,24,62,.65);
-}
-.crewrow input[type=text]{
-  width:100%;background:#050f2c;border:1px solid var(--rule-str);border-radius:7px;
-  color:var(--ink);font-family:var(--font-hud);font-size:12px;padding:7px 9px;
-}
-.crewrow input[type=text]:focus{border-color:var(--uefa-lt);outline:none}
-.crewrow input[type=color]{
-  width:34px;height:30px;padding:0;border:1px solid var(--rule-str);border-radius:7px;
-  background:transparent;cursor:pointer;
-}
-.crewrow .avatar{
-  width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:15px;
-  background:rgba(255,255,255,.05);border:1px solid currentColor;
-}
+/* ---------- Squad ---------- */
+.crew{display:grid;gap:8px}
+.crewrow{display:grid;grid-template-columns:30px 1fr 34px;gap:9px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.crewrow input[type=text]{width:100%;background:#000;border:1px solid var(--line-2);border-radius:8px;color:var(--ink);font-family:var(--font-hud);font-size:12px;padding:7px 9px}
+.crewrow input[type=text]:focus{border-color:#fff;outline:none}
+.crewrow input[type=color]{width:34px;height:30px;padding:0;border:1px solid var(--line-2);border-radius:8px;background:transparent;cursor:pointer}
+.crewrow .avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:14px;border:1px solid currentColor}
 
 /* ---------- Charts ---------- */
 .chart-wrap{position:relative}
 .chart-wrap svg{display:block;width:100%;height:auto;overflow:visible}
-.legend{display:flex;gap:13px;flex-wrap:wrap;margin-bottom:9px}
-.legend .li{
-  display:flex;align-items:center;gap:6px;font-family:var(--font-display);
-  font-stretch:condensed;font-weight:600;font-size:12px;text-transform:uppercase;
-  letter-spacing:.07em;color:var(--ink-mid);cursor:pointer;user-select:none;
-}
-.legend .li.off{opacity:.34}
-.legend .sw{width:15px;height:3px;border-radius:2px}
-.tipbox{
-  position:absolute;pointer-events:none;background:#0a1a44;border:1px solid var(--rule-str);
-  border-radius:9px;padding:8px 10px;font-family:var(--font-hud);font-size:10.5px;
-  color:var(--ink-mid);opacity:0;transition:opacity .12s;z-index:40;white-space:nowrap;
-  box-shadow:0 12px 30px rgba(0,0,0,.7);
-}
-.tipbox .d{color:var(--ink);font-size:11px;margin-bottom:4px;letter-spacing:.07em}
-.tipbox .r{display:flex;justify-content:space-between;gap:13px}
-.tipbox .r b{color:#fff;font-weight:600}
-.mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:8px;margin-bottom:11px}
-.mini .m{border:1px solid var(--rule);border-radius:9px;padding:8px 10px;background:rgba(10,24,62,.6)}
-.mini .m .nm{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:11.5px;
-  text-transform:uppercase;letter-spacing:.09em;
-}
-.mini .m .v{
-  font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:24px;
-  color:var(--ink);line-height:1.15;
-}
-.empty{
-  padding:26px 14px;text-align:center;color:var(--ink-dim);font-size:12.5px;line-height:1.6;
-  border:1px dashed var(--rule);border-radius:10px;
-}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.legend .li{display:flex;align-items:center;gap:6px;font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2);cursor:pointer;user-select:none}
+.legend .li.off{opacity:.3}
+.legend .sw{width:14px;height:3px;border-radius:2px}
+.tipbox{position:absolute;pointer-events:none;background:#fff;color:#18181b;border-radius:10px;padding:8px 11px;font-family:var(--font-hud);font-size:10.5px;opacity:0;transition:opacity .12s;z-index:40;white-space:nowrap;box-shadow:0 14px 34px rgba(0,0,0,.6)}
+.tipbox .d{font-size:11px;margin-bottom:4px;letter-spacing:.06em;color:#000;font-weight:600}
+.tipbox .r{display:flex;justify-content:space-between;gap:14px}
+.tipbox .r b{color:#000}
+.mini{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:8px;margin-bottom:12px}
+.mini .m{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:8px 11px}
+.mini .m .nm{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em}
+.mini .m .v{font-family:var(--font-display);font-stretch:condensed;font-weight:700;font-size:24px;color:#fff;line-height:1.15}
 
+/* ---------- Responsive ---------- */
 @media (max-width:1080px){ .panel{grid-column:span 12 !important} }
 @media (max-width:560px){
-  .hud-row,.mini{grid-template-columns:1fr}
+  .hud-row,.mini,.recs{grid-template-columns:1fr}
   .match-strip{grid-template-columns:22px 1fr auto;row-gap:5px}
   .match-strip .status{grid-column:1/-1;text-align:left}
-  .pbody{padding:11px}
+  .fix{grid-template-columns:1fr auto auto;grid-template-areas:"na sa vs" "nb sb vs";
+        row-gap:3px;column-gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+  .fix:last-child{border-bottom:0}
+  .fix>:nth-child(1),.fix .side.a{grid-area:na;text-align:left}
+  .fix>:nth-child(2){grid-area:sa;text-align:right}
+  .fix>:nth-child(3){grid-area:vs;align-self:center;min-width:64px}
+  .fix>:nth-child(4){grid-area:sb;text-align:right}
+  .fix>:nth-child(5){grid-area:nb}
+  /* phones: keep #, player, P W D L, Pts and form on screen */
+  .ltable .mh{display:none}
+  .phint{margin-left:0;text-align:left}
+  .pbody{padding:12px}
 }
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
-    transition-duration:.001ms !important}
+  *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
 }
+.fix .vs.ff{color:#fca5a5;border-color:rgba(252,165,165,.45)}
+.fix .vs.wait{color:var(--ink-2);border-style:dashed}
+.ffmark{font-family:var(--font-hud);font-size:10px;letter-spacing:.1em;color:#fca5a5;border:1px solid rgba(252,165,165,.4);border-radius:3px;padding:0 4px}
 </style>
 </head>
 <body>
 <header class="masthead">
   <div class="brandmark">
-    <svg viewBox="0 0 48 48" aria-hidden="true">
-      <circle cx="24" cy="24" r="21" fill="none" stroke="rgba(140,180,255,.35)" stroke-width="1.5"/>
-      <circle cx="24" cy="24" r="15.5" fill="none" stroke="rgba(140,180,255,.18)"/>
-      <g fill="#4d94ff">
-        <path d="M24 6.5l1.9 5.6-4.8-3.5h5.8l-4.8 3.5z"/>
-        <path d="M40.6 18.6l-4.8 3.5 1.9-5.6 1.8 5.6-4.8-3.5z"/>
-        <path d="M34.3 38.2l-4.8-3.5h5.9l-4.8 3.5 1.8-5.6z"/>
-        <path d="M13.7 38.2l1.8-5.6 1.9 5.6-4.8-3.5h5.8z"/>
-        <path d="M7.4 18.6l5.8 0-4.8 3.5 1.8-5.6 1.9 5.6z"/>
-      </g>
-      <circle cx="24" cy="24" r="6" fill="none" stroke="#4d94ff" stroke-width="1.6"/>
-    </svg>
+    <svg viewBox="-24 -24 48 48" aria-hidden="true"><circle r="22.5" fill="none" stroke="#fff" stroke-opacity=".25"/><g fill="#fff"><path d="M0-20.5l1.6 4.9h5.1l-4.1 3 1.6 4.9L0-10.7l-4.2 3 1.6-4.9-4.1-3h5.1z" transform="rotate(0)"/><path d="M0-20.5l1.6 4.9h5.1l-4.1 3 1.6 4.9L0-10.7l-4.2 3 1.6-4.9-4.1-3h5.1z" transform="rotate(45)"/><path d="M0-20.5l1.6 4.9h5.1l-4.1 3 1.6 4.9L0-10.7l-4.2 3 1.6-4.9-4.1-3h5.1z" transform="rotate(90)"/><path d="M0-20.5l1.6 4.9h5.1l-4.1 3 1.6 4.9L0-10.7l-4.2 3 1.6-4.9-4.1-3h5.1z" transform="rotate(135)"/><path d="M0-20.5l1.6 4.9h5.1l-4.1 3 1.6 4.9L0-10.7l-4.2 3 1.6-4.9-4.1-3h5.1z" transform="rotate(180)"/><path d="M0-20.5l1.6 4.9h5.1l-4.1 3 1.6 4.9L0-10.7l-4.2 3 1.6-4.9-4.1-3h5.1z" transform="rotate(225)"/><path d="M0-20.5l1.6 4.9h5.1l-4.1 3 1.6 4.9L0-10.7l-4.2 3 1.6-4.9-4.1-3h5.1z" transform="rotate(270)"/><path d="M0-20.5l1.6 4.9h5.1l-4.1 3 1.6 4.9L0-10.7l-4.2 3 1.6-4.9-4.1-3h5.1z" transform="rotate(315)"/></g><circle r="5.2" fill="none" stroke="#fff" stroke-width="1.6"/></svg>
     <div class="brandtext">
       <h1>Champions <em>League</em></h1>
       <div class="sub">Daily Standings</div>
@@ -540,39 +373,62 @@ tbody tr.q2{background:linear-gradient(90deg,rgba(30,107,255,.07),transparent 70
 
 <!-- Sample data. Replace by setting DATA_SOURCE.url to your published CSV link. -->
 <script type="text/plain" id="seed-csv">
-,03/08/2026,04/08/2026,05/08/2026,06/08/2026,07/08/2026,08/08/2026,09/08/2026,10/08/2026,11/08/2026,12/08/2026,13/08/2026,14/08/2026,15/08/2026,16/08/2026,17/08/2026,18/08/2026,19/08/2026,20/08/2026,21/08/2026,22/08/2026,23/08/2026,24/08/2026,25/08/2026,26/08/2026,27/08/2026,28/08/2026
-Alex,41440,42866,36812,38910,,39497,38596,39977,39944,33974,35786,,37208,40126,38895,35315,34032,41692,,35876,33685,34325,38852,38008,,
-Sam,44216,38143,35085,32301,42159,44794,40157,41246,35969,34439,36316,32331,39629,30430,27771,33784,,42802,39711,39606,38664,42881,33444,40304,,
-Jordan,38680,33779,44477,29205,36754,39514,36368,36788,26673,32093,31626,,32051,41820,30946,41253,40093,37055,38873,,,39685,,38833,,
-Casey,39151,39834,43191,43030,35387,37384,36451,45244,,34816,36772,,45700,36044,35459,39131,37898,33417,45577,36404,37003,34122,38206,37385,,
-Riley,31795,25526,46278,34795,36012,38415,42274,30770,36155,33877,37043,28585,36541,31849,32143,38251,36679,37564,36440,33333,33402,32264,46990,36622,,
-Morgan,42293,36242,38893,41277,35247,36377,41492,35947,41804,35558,32968,,37060,45802,38290,37248,32683,31021,35529,38132,41562,31375,35352,34219,,
-Winner,Sam,Alex,Riley,Casey,Sam,Sam,Riley,Casey,Morgan,Morgan,Riley,Sam,Casey,Morgan,Alex,Jordan,Jordan,Sam,Casey,Sam,Morgan,Sam,Riley,Sam,,
-,,,,,,,,,,,,,,,,,,,,,,,,,,
-,Highest Score,Lowest Score,Highest Round,Lowest Round,,Total Score,Average Score,>4000 DAYS,Swing %
-Alex,9965,828,42866,33685,,795816,37896,4,7.20%
-Sam,9988,1147,44794,27771,,866182,37660,8,12.26%
-Jordan,9957,2093,44477,26673,,726566,36328,4,12.84%
-Casey,9968,1970,45700,33417,,847606,38528,5,9.69%
-Riley,9964,1026,46990,25526,,853603,35567,3,13.78%
-Morgan,9989,2155,45802,31021,,856371,37234,6,10.17%
-,,,,,,,,,,,,,,,,,,,,,,,,,,
-The lab,,,,,,,,,,,,,,,,,,,,,,,,,,
-Score Race,,,,,,,,,,,,,,,,,,,,,,,,,,
-Alex,41440,84306,121118,160028,160028,199525,238121,278098,318042,352016,387802,387802,425010,465136,504031,539346,573378,615070,615070,650946,684631,718956,757808,795816,795816,795816
-Sam,44216,82359,117444,149745,191904,236698,276855,318101,354070,388509,424825,457156,496785,527215,554986,588770,588770,631572,671283,710889,749553,792434,825878,866182,866182,866182
-Jordan,38680,72459,116936,146141,182895,222409,258777,295565,322238,354331,385957,385957,418008,459828,490774,532027,572120,609175,648048,648048,648048,687733,687733,726566,726566,726566
-Casey,39151,78985,122176,165206,200593,237977,274428,319672,319672,354488,391260,391260,436960,473004,508463,547594,585492,618909,664486,700890,737893,772015,810221,847606,847606,847606
-Riley,31795,57321,103599,138394,174406,212821,255095,285865,322020,355897,392940,421525,458066,489915,522058,560309,596988,634552,670992,704325,737727,769991,816981,853603,853603,853603
-Morgan,42293,78535,117428,158705,193952,230329,271821,307768,349572,385130,418098,418098,455158,500960,539250,576498,609181,640202,675731,713863,755425,786800,822152,856371,856371,856371
-,,,,,,,,,,,,,,,,,,,,,,,,,,
-Rolling 7 day average,,,,,,,,,,,,,,,,,,,,,,,,,,
-Alex,,,,,,,39687,39443,38956,38483,37962,37962,37581,37836,37656,36884,36894,37878,37878,37656,36582,35821,36410,37073,36149,36149
-Sam,,,,,,,39551,39126,38816,38724,39297,37893,37155,35766,33841,33529,33377,34458,35688,35684,37056,39575,39518,39630,39102,38980
-Jordan,,,,,,,36968,36698,35683,33914,34259,33844,32600,33508,32535,34965,36298,37203,37442,38340,37644,39392,38926,38612,39130,39259
-Casey,,,,,,,39204,40074,40114,38719,37676,38133,39797,39715,37758,37987,38501,37942,39032,37704,37841,37650,37518,37445,38116,36624
-Riley,,,,,,,36442,36296,37814,36043,36364,35303,35035,33546,33742,34041,34442,34516,35638,35180,35402,35419,36667,36659,36508,36522
-Morgan,,,,,,,38832,37925,38720,38243,37056,37358,37472,38190,38580,37821,37342,37017,36805,36958,36352,35364,35093,35313,36028,36128</script>
+,01/09/2026,02/09/2026,03/09/2026,04/09/2026,05/09/2026,06/09/2026,07/09/2026,08/09/2026,09/09/2026,10/09/2026,11/09/2026,12/09/2026,13/09/2026,14/09/2026,15/09/2026,16/09/2026,17/09/2026,18/09/2026,19/09/2026,20/09/2026,21/09/2026,22/09/2026,23/09/2026,24/09/2026,25/09/2026,26/09/2026,27/09/2026,28/09/2026,29/09/2026,30/09/2026,01/10/2026,02/10/2026,03/10/2026,04/10/2026,05/10/2026,06/10/2026,07/10/2026,08/10/2026,09/10/2026,10/10/2026,11/10/2026,12/10/2026,13/10/2026,14/10/2026,15/10/2026,16/10/2026,17/10/2026,18/10/2026,19/10/2026,20/10/2026,
+Ewan Mc,40627,37486,32651,40735,47665,41246,39559,37700,38078,41367,36410,35806,43478,32835,43357,36272,37057,38271,37697,41239,34761,41910,38817,39155,41021,34320,37723,37596,37346,40913,39409,47910,41461,40064,36263,45878,38041,33689,32341,34481,44209,45028,40198,37573,43498,40789,37831,40346,36063,43335,39824
+Dan,38463,37435,34383,46078,39283,41296,40488,42701,40686,48052,40579,44484,38470,35509,38567,37615,37972,40791,34696,40917,33233,40476,36894,33152,45871,31319,34163,37059,37251,39241,44907,41497,47272,37175,32351,38541,40390,31928,32341,30304,35473,41808,36788,36400,41650,44755,44385,42757,30870,44712,
+Paul Mc,40462,37688,32805,45585,43052,41536,38401,34901,41788,40928,45471,30887,39905,32915,42897,38693,44754,37721,38306,40535,31755,35280,36359,41092,42675,30947,36758,31194,45283,37046,43600,35582,38833,37549,35830,32922,39514,36285,43128,41545,37316,44378,36250,41286,45172,41262,45439,45886,35800,44897,43690
+Billzo,32469,34393,32967,48090,41229,37502,41437,41284,39181,45457,39947,36781,40759,29834,35566,29917,40384,35673,38874,42388,36872,40589,39001,40808,42870,32179,32034,42879,41291,44281,39551,36896,40333,37063,29350,43549,33526,31076,40174,37590,37249,38553,34893,43911,45137,43814,40520,42504,33673,,
+Cobbola,38451,38808,41986,47649,42947,35826,38587,36118,34501,41214,38998,46115,41567,34637,47236,38825,38363,40036,40781,43181,35870,42745,34658,40602,46536,39864,37648,39865,37184,44405,42296,41603,47292,42789,44953,46550,44707,37009,45815,44472,45411,40480,34893,37250,43277,46815,45500,49051,34749,45648,
+Slosher,30711,33090,29966,41310,39946,38535,36558,38283,38092,38213,44741,34311,29267,32508,42731,33329,35142,32672,34696,40180,28754,38909,36000,30151,43535,27946,37770,39878,34250,41404,40599,44909,37332,34174,41952,29921,35040,28071,32341,41471,34315,42027,34893,33399,40276,38261,34830,39503,27869,42647,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Winner,Ewan Mc,Cobbola,Cobbola,Billzo,Ewan Mc,Paul Mc,Billzo,Dan,Paul Mc,Dan,Paul Mc,Cobbola,Ewan Mc,Dan,Cobbola,Cobbola,Paul Mc,Dan,Cobbola,Cobbola,Billzo,Cobbola,Billzo,Paul Mc,Cobbola,Cobbola,Slosher,Billzo,Paul Mc,Cobbola,Dan,Ewan Mc,Cobbola,Cobbola,Cobbola,Cobbola,Cobbola,Cobbola,Cobbola,Cobbola,Cobbola,Ewan Mc,Ewan Mc,Billzo,Paul Mc,Cobbola,Cobbola,Cobbola,Ewan Mc,Cobbola,Paul Mc
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,Highest Score,Lowest Score,Highest Round,Lowest Round,,Total Score,Average Score,>40000 DAYS,Swing %,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Ewan Mc,,,,,,2001329,39242,22,9.30%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Dan,,,,,,1943428,38869,22,11.66%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Paul Mc,,,,,,2003783,39290,24,11.11%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Billzo,,,,,,1886298,38496,22,11.73%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Cobbola,,,,,,2065763,41315,30,9.98%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Slosher,,,,,,1816708,36334,13,13.04%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+The lab,Score Race,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Ewan Mc,40627,78113,110764,151499,199164,240410,279969,317669,355747,397114,433524,469330,512808,545643,589000,625272,662329,700600,738297,779536,814297,856207,895024,934179,975200,1009520,1047243,1084839,1122185,1163098,1202507,1250417,1291878,1331942,1368205,1414083,1452124,1485813,1518154,1552635,1596844,1641872,1682070,1719643,1763141,1803930,1841761,1882107,1918170,1961505,2001329
+Dan,38463,75898,110281,156359,195642,236938,277426,320127,360813,408865,449444,493928,532398,567907,606474,644089,682061,722852,757548,798465,831698,872174,909068,942220,988091,1019410,1053573,1090632,1127883,1167124,1212031,1253528,1300800,1337975,1370326,1408867,1449257,1481185,1513526,1543830,1579303,1621111,1657899,1694299,1735949,1780704,1825089,1867846,1898716,1943428,
+Paul Mc,40462,78150,110955,156540,199592,241128,279529,314430,356218,397146,442617,473504,513409,546324,589221,627914,672668,710389,748695,789230,820985,856265,892624,933716,976391,1007338,1044096,1075290,1120573,1157619,1201219,1236801,1275634,1313183,1349013,1381935,1421449,1457734,1500862,1542407,1579723,1624101,1660351,1701637,1746809,1788071,1833510,1879396,1915196,1960093,2003783
+Billzo,32469,66862,99829,147919,189148,226650,268087,309371,348552,394009,433956,470737,511496,541330,576896,606813,647197,682870,721744,764132,801004,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Cobbola,38451,77259,119245,166894,209841,245667,284254,320372,354873,396087,435085,481200,522767,557404,604640,643465,681828,721864,762645,805826,841696,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Slosher,30711,63801,93767,135077,175023,213558,250116,288399,326491,364704,409445,443756,473023,505531,548262,581591,616733,649405,684101,724281,753035,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,Rolling 7 day average,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Ewan Mc,,,,,,,39996,39996,39662,40907,40289,38595,38914,37953,38762,38504,37888,38154,38424,38104,38379,38172,38536,38836,39229,38746,38244,38649,37997,38296,38333,39317,40337,40671,40481,41700,41289,40472,38248,37251,37843,39095,38284,38217,39618,40825,41304,40752,39471,39919,40241
+Dan,,,,,,,39632,39632,,,,,,,,,,,,,,,,37166,37891,37409,36444,36991,36530,36865,38544,37920,40199,40629,39956,40141,40305,38451,37143,34719,34475,35826,35576,35006,36395,38168,40180,41220,39658,40790,41522
+Paul Mc,,,,,,,39933,39933,39724,40884,40868,39130,38897,38114,39256,38814,39360,38253,39313,39403,39237,38149,37816,37293,38000,36949,36409,36329,37758,37856,38215,37201,38328,38441,39103,37337,37690,36645,37723,38110,38077,39298,39774,40027,41296,41030,41586,42810,41585,42820,43164
+Billzo,,,,,,,38298,38298,40241,42026,40862,40227,40692,39035,38218,36894,36170,35559,35858,36091,37096,37814,39112,39172,40200,39244,37765,38623,38723,39477,,,,,,,,,,,,,,,,,,,,,
+Cobbola,,,,,,,40608,40608,39659,39549,38313,38766,39586,39021,40610,41227,40820,40968,40206,40437,40613,39972,39376,39696,40625,40494,39703,40274,39480,40872,,,,,,,,,,,,,,,,,,,,,
+Slosher,,,,,,,35731,35731,37527,38705,39195,38390,37066,36488,37123,36443,36004,34280,34335,35894,35358,34812,35193,34480,36032,35068,34724,36313,35647,36419,,,,,,,,,,,,,,,,,,,,,
+</script>
 
 <script>
 "use strict";
@@ -591,8 +447,8 @@ Morgan,,,,,,,38832,37925,38720,38243,37056,37358,37472,38190,38580,37821,37342,3
 
 /* Six kits, chosen to stay distinguishable on the dark background and to avoid
    a red/green pairing that colour-blind viewers struggle to separate. */
-var KIT_COLORS = ["#00d5ff","#ffc531","#ff4d8d","#35e08f","#a98bff","#ff7a3d"];
-var KIT_BADGES = ["\u26BD","\u26BD","\u26BD","\u26BD","\u26BD","\u26BD"];
+var KIT_COLORS = ["#00d5ff","#ffc531","#ff4d8d","#35e08f","#a98bff","#ff7a3d","#dfe5ee"];
+var KIT_BADGES = ["\u26BD","\u26BD","\u26BD","\u26BD","\u26BD","\u26BD","\u26BD"];
 
 var PLAYER_CONFIG = [
   /* Example — uncomment and edit to pin a player's colour:
@@ -721,15 +577,52 @@ function parseSheet(text){
     );
   }
 
-  /* ---- Player rows: labelled rows under the header, until blank/'Winner' */
-  var daily={}, order=[];
+  /* ---- Undated score columns. A new day is sometimes typed in before its
+     header date is filled in. Any column to the right of the last dated one that
+     already holds a player score is given the next consecutive date, so those
+     scores are not silently dropped. */
+  var lastDated=dateCols[dateCols.length-1];
+  var inferred=[];
+  (function(){
+    var maxCol=0, k;
+    for(k=hdrIdx+1;k<Math.min(rows.length,hdrIdx+16);k++) maxCol=Math.max(maxCol,rows[k].length);
+    var prev=lastDated.date, col;
+    for(col=lastDated.col+1;col<maxCol;col++){
+      if(cell(rows[hdrIdx],col)!=="") break;            /* a non-date header: stop */
+      var has=false;
+      for(k=hdrIdx+1;k<Math.min(rows.length,hdrIdx+16);k++){
+        var lb=norm(cell(rows[k],0));
+        if(lb==="winner") break;
+        if(lb && toNum(cell(rows[k],col))!=null){ has=true; break; }
+      }
+      if(!has) break;
+      var nd=new Date(Date.UTC(prev.y,prev.m-1,prev.d+1));
+      var dt={d:nd.getUTCDate(),m:nd.getUTCMonth()+1,y:nd.getUTCFullYear()};
+      dt.iso=dt.y+"-"+String(dt.m).padStart(2,"0")+"-"+String(dt.d).padStart(2,"0");
+      dateCols.push({col:col,date:dt}); inferred.push(dt); prev=dt;
+    }
+  })();
+  if(inferred.length)
+    warnings.push("Inferred "+inferred.length+" missing date header(s): "+
+      inferred.map(function(d){ return d.d+"/"+d.m+"/"+d.y; }).join(", "));
+
+  /* ---- Player rows: labelled rows under the header. Blank rows are tolerated
+     (so a new player added a row or two lower is still found) and a player with
+     no scores yet is simply skipped. Stops at 'Winner', at a name already seen
+     (the start of another block), or after a long run of blank rows. */
+  var daily={}, order=[], blanks=0;
   for(i=hdrIdx+1;i<rows.length;i++){
     r=rows[i];
     var label=cell(r,0);
-    if(label==="") { if(rowText(r).replace(/\|/g,"")==="") break; else continue; }
+    if(label===""){
+      if(rowText(r).replace(/\|/g,"")===""){ if(++blanks>3) break; continue; }
+      continue;
+    }
+    blanks=0;
     if(norm(label)==="winner") break;
+    if(daily.hasOwnProperty(label)) break;
     var vals=dateCols.map(function(dc){ return toNum(cell(r,dc.col)); });
-    if(!vals.some(function(v){return v!=null;})) break;
+    if(!vals.some(function(v){return v!=null;})) continue;
     daily[label]=vals; order.push(label);
   }
   if(!order.length)
@@ -1190,7 +1083,15 @@ var visible = function(){ return VIEW().players.filter(function(p){ return !STAT
    that show a race/standings read this; Today, the monthly panels and Crew read
    the full model instead. */
 var VIEW = function(){
-  if(!STATE.view) STATE.view=scopeModel(STATE.model,STATE.period||"all");
+  if(!STATE.view){
+    var v=scopeModel(STATE.model,STATE.period||"all");
+    /* Only players who actually played in this period. A player who has left
+       keeps their history in the periods they played, and a newcomer appears
+       from their first score, without either cluttering the other's months. */
+    var active=v.players.filter(function(p){ return p.played>0; });
+    if(active.length) v.players=active;
+    STATE.view=v;
+  }
   return STATE.view;
 };
 /* Small badge telling you which period a scoped panel is showing. */
@@ -1239,12 +1140,12 @@ function lineChart(host,opts){
 
   ticks.forEach(function(t){
     s.push('<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(t).toFixed(1)+'" y2="'+Y(t).toFixed(1)+
-      '" stroke="rgba(126,168,216,.13)"/>',
-      '<text x="'+(L-9)+'" y="'+(Y(t)+3.5).toFixed(1)+'" text-anchor="end" fill="#6a839f" '+
+      '" stroke="rgba(255,255,255,.07)"/>',
+      '<text x="'+(L-9)+'" y="'+(Y(t)+3.5).toFixed(1)+'" text-anchor="end" fill="#7a7f89" '+
       'font-size="10" font-family="ui-monospace,monospace">'+fmtInt(t)+'</text>');
   });
   for(var i=0;i<n;i+=step)
-    s.push('<text x="'+X(i).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle" fill="#6a839f" '+
+    s.push('<text x="'+X(i).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle" fill="#7a7f89" '+
       'font-size="10" font-family="ui-monospace,monospace">'+fmtDate(dates[i])+'</text>');
 
   series.forEach(function(sr,k){
@@ -1266,15 +1167,15 @@ function lineChart(host,opts){
         s.push('<circle cx="'+seg[0][0].toFixed(1)+'" cy="'+seg[0][1].toFixed(1)+'" r="3" fill="'+sr.color+'"/>');
       else
         s.push('<path d="'+d+'" fill="none" stroke="'+sr.color+'" stroke-width="2.2" '+
-          'stroke-linejoin="round" stroke-linecap="round" style="filter:drop-shadow(0 0 5px '+sr.color+'66)"/>');
+          'stroke-linejoin="round" stroke-linecap="round"/>');
     });
     var last=-1; sr.values.forEach(function(v,i){ if(v!=null) last=i; });
     if(last>-1) s.push('<circle cx="'+X(last).toFixed(1)+'" cy="'+Y(sr.values[last]).toFixed(1)+
-      '" r="3.6" fill="'+sr.color+'" stroke="#050a12" stroke-width="1.6"/>');
+      '" r="3.6" fill="'+sr.color+'" stroke="#0b0b0d" stroke-width="1.6"/>');
   });
 
   s.push('<line class="cross" x1="0" x2="0" y1="'+T+'" y2="'+(T+ih)+
-    '" stroke="rgba(126,168,216,.5)" stroke-dasharray="3 3" style="opacity:0"/>');
+    '" stroke="rgba(255,255,255,.35)" stroke-dasharray="3 3" style="opacity:0"/>');
   s.push('<rect x="'+L+'" y="'+T+'" width="'+iw+'" height="'+ih+'" fill="transparent" class="hit"/>');
   s.push('</svg>');
   host.innerHTML=s.join("")+'<div class="tipbox"></div>';
@@ -1358,8 +1259,8 @@ function groupedBarChart(host,opts){
 
   ticks.forEach(function(t){
     s.push('<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(t).toFixed(1)+'" y2="'+Y(t).toFixed(1)+
-      '" stroke="rgba(126,168,216,.13)"/>',
-      '<text x="'+(L-9)+'" y="'+(Y(t)+3.5).toFixed(1)+'" text-anchor="end" fill="#6a839f" '+
+      '" stroke="rgba(255,255,255,.07)"/>',
+      '<text x="'+(L-9)+'" y="'+(Y(t)+3.5).toFixed(1)+'" text-anchor="end" fill="#7a7f89" '+
       'font-size="10" font-family="ui-monospace,monospace">'+fmtInt(t)+'</text>');
   });
 
@@ -1369,14 +1270,13 @@ function groupedBarChart(host,opts){
     /* alternating month band for readability */
     if(gi%2===1)
       s.push('<rect x="'+gx.toFixed(1)+'" y="'+T+'" width="'+gw.toFixed(1)+'" height="'+ih+
-        '" fill="rgba(126,168,216,.035)"/>');
+        '" fill="rgba(255,255,255,.025)"/>');
     series.forEach(function(sr,si){
       var v=sr.values[gi];
       if(v==null||v<=0) return;
       var x=gx+pad+si*bw, h=Math.max(1,(T+ih)-Y(v));
       s.push('<rect x="'+x.toFixed(1)+'" y="'+Y(v).toFixed(1)+'" width="'+(bw-3).toFixed(1)+
-        '" height="'+h.toFixed(1)+'" rx="2.5" fill="url(#'+uid+si+')" '+
-        'style="filter:drop-shadow(0 0 6px '+sr.color+'55)">'+
+        '" height="'+h.toFixed(1)+'" rx="2.5" fill="url(#'+uid+si+')">'+
         '<title>'+esc(sr.name)+' \u2014 '+esc(g.label||g)+': '+fmtInt(v)+'</title></rect>');
       if(showVals)
         s.push('<text x="'+(x+(bw-3)/2).toFixed(1)+'" y="'+(Y(v)-5).toFixed(1)+
@@ -1384,16 +1284,16 @@ function groupedBarChart(host,opts){
           'style="font-family:var(--font-display)">'+fmtInt(v)+'</text>');
     });
     /* month label + optional champion marker */
-    s.push('<text x="'+(gx+gw/2).toFixed(1)+'" y="'+(H-24)+'" text-anchor="middle" fill="#a8bfdc" '+
+    s.push('<text x="'+(gx+gw/2).toFixed(1)+'" y="'+(H-24)+'" text-anchor="middle" fill="#b8bcc4" '+
       'font-size="11" font-weight="700" letter-spacing="1" style="font-family:var(--font-display)">'+
       esc(g.label||g)+'</text>');
     if(g.sub)
-      s.push('<text x="'+(gx+gw/2).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle" fill="#6a839f" '+
+      s.push('<text x="'+(gx+gw/2).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle" fill="#7a7f89" '+
         'font-size="9" letter-spacing=".6" font-family="ui-monospace,monospace">'+esc(g.sub)+'</text>');
   });
 
   s.push('<line x1="'+L+'" x2="'+(W-R)+'" y1="'+(T+ih)+'" y2="'+(T+ih)+
-    '" stroke="rgba(126,168,216,.34)"/>');
+    '" stroke="rgba(255,255,255,.22)"/>');
   s.push('</svg>');
   host.innerHTML=s.join("");
 }
@@ -1411,9 +1311,9 @@ function ballArt(color,id){
   /* football: player-coloured panels, white seams, readable at ~20px */
   return '<g>'+
     '<circle r="11" fill="'+color+'" stroke="#f2f7ff" stroke-width="1.6"/>'+
-    '<path d="M0 -6.4 L6.1 -2 L3.8 5.2 L-3.8 5.2 L-6.1 -2 Z" fill="#08122e" opacity=".82"/>'+
+    '<path d="M0 -6.4 L6.1 -2 L3.8 5.2 L-3.8 5.2 L-6.1 -2 Z" fill="#0b0b0d" opacity=".82"/>'+
     '<path d="M0 -11 v4.6 M6.1 -2 l4.4 -3.2 M3.8 5.2 l2.7 4.1 M-3.8 5.2 l-2.7 4.1 M-6.1 -2 l-4.4 -3.2" '+
-      'stroke="#08122e" stroke-width="1.5" opacity=".62" fill="none" stroke-linecap="round"/>'+
+      'stroke="#0b0b0d" stroke-width="1.5" opacity=".62" fill="none" stroke-linecap="round"/>'+
     '</g>';
 }
 
@@ -1432,37 +1332,37 @@ function renderRoad(body){
   var s=['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Cumulative score, road to the final">'];
   s.push('<defs>',
     '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">',
-      '<stop offset="0" stop-color="#0a1c4e"/><stop offset=".6" stop-color="#050f2e"/>',
-      '<stop offset="1" stop-color="#030a1e"/></linearGradient>',
+      '<stop offset="0" stop-color="#16171b"/><stop offset=".6" stop-color="#0c0d10"/>',
+      '<stop offset="1" stop-color="#08080a"/></linearGradient>',
     '<radialGradient id="flood" cx="50%" cy="0%" r="72%">',
-      '<stop offset="0" stop-color="#4d94ff" stop-opacity=".26"/>',
-      '<stop offset="1" stop-color="#4d94ff" stop-opacity="0"/></radialGradient>',
+      '<stop offset="0" stop-color="#ffffff" stop-opacity=".09"/>',
+      '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>',
     '</defs>');
   s.push('<rect width="'+W+'" height="'+H+'" fill="url(#sky)"/>',
          '<rect width="'+W+'" height="'+H+'" fill="url(#flood)"/>');
 
   /* stadium arc + centre circle motif */
   s.push('<ellipse cx="'+(W/2)+'" cy="'+(H-6)+'" rx="'+(W*0.56)+'" ry="'+(H*0.5)+
-    '" fill="none" stroke="rgba(140,180,255,.09)"/>');
+    '" fill="none" stroke="rgba(255,255,255,.06)"/>');
   s.push('<circle cx="'+(W/2)+'" cy="'+((top+bot)/2)+'" r="'+((bot-top)/2+34)+
-    '" fill="none" stroke="rgba(140,180,255,.07)"/>');
+    '" fill="none" stroke="rgba(255,255,255,.05)"/>');
 
   /* stage gates */
   for(var g=1;g<=STAGES.length;g++){
     var gv=axisMax*g/STAGES.length, gx=X(gv), fin=(g===STAGES.length);
     s.push('<line x1="'+gx.toFixed(1)+'" x2="'+gx.toFixed(1)+'" y1="'+(top-30)+'" y2="'+(bot+34)+
-      '" stroke="'+(fin?"rgba(255,210,90,.5)":"rgba(140,180,255,.14)")+
+      '" stroke="'+(fin?"rgba(255,210,90,.5)":"rgba(255,255,255,.1)")+
       '" stroke-dasharray="'+(fin?"5 4":"2 7")+'"/>');
     s.push('<text x="'+gx.toFixed(1)+'" y="'+(top-38)+'" text-anchor="middle" fill="'+
-      (fin?"#ffd25a":"#6b83b3")+'" font-size="10" font-family="ui-monospace,monospace" '+
+      (fin?"#ffd25a":"#7a7f89")+'" font-size="10" font-family="ui-monospace,monospace" '+
       'letter-spacing="1.4">'+STAGES[g-1]+'</text>');
-    s.push('<text x="'+gx.toFixed(1)+'" y="'+(bot+48)+'" text-anchor="middle" fill="#40598a" '+
+    s.push('<text x="'+gx.toFixed(1)+'" y="'+(bot+48)+'" text-anchor="middle" fill="#4a4e56" '+
       'font-size="9" font-family="ui-monospace,monospace">'+Math.round(gv/1000)+'K</text>');
   }
   /* kick-off line */
   s.push('<line x1="'+X0+'" x2="'+X0+'" y1="'+(top-30)+'" y2="'+(bot+34)+
-    '" stroke="rgba(140,180,255,.34)"/>',
-    '<text x="'+X0+'" y="'+(top-38)+'" text-anchor="middle" fill="#a9c0e8" font-size="10" '+
+    '" stroke="rgba(255,255,255,.3)"/>',
+    '<text x="'+X0+'" y="'+(top-38)+'" text-anchor="middle" fill="#b8bcc4" font-size="10" '+
     'font-family="ui-monospace,monospace" letter-spacing="1.4">KICK-OFF</text>');
   /* trophy at the finish */
   s.push('<g transform="translate('+(X1+34)+','+((top+bot)/2)+')" opacity=".92">'+
@@ -1476,12 +1376,11 @@ function renderRoad(body){
   ps.forEach(function(p,i){
     var by=lanes[i];
     var d="M"+X0+" "+by+" Q"+((X0+X1)/2)+" "+(by-26)+" "+X1+" "+by;
-    s.push('<path id="route'+i+'" d="'+d+'" fill="none" stroke="rgba(140,180,255,.16)" '+
+    s.push('<path id="route'+i+'" d="'+d+'" fill="none" stroke="rgba(255,255,255,.13)" '+
       'stroke-dasharray="1 8" stroke-linecap="round"/>');
     s.push('<path id="trail'+i+'" d="'+d+'" fill="none" stroke="'+p.color+'" stroke-width="2.6" '+
-      'stroke-dasharray="0 99999" stroke-linecap="round" opacity=".92" '+
-      'style="filter:drop-shadow(0 0 6px '+p.color+'aa)"/>');
-    s.push('<g id="ball'+i+'" style="filter:drop-shadow(0 0 8px '+p.color+'cc)">'+ballArt(p.color,i)+'</g>');
+      'stroke-dasharray="0 99999" stroke-linecap="round" opacity=".92"/>');
+    s.push('<g id="ball'+i+'">'+ballArt(p.color,i)+'</g>');
     s.push('<g id="tag'+i+'"><text x="0" y="0" fill="'+p.color+'" font-size="11.5" '+
       'font-weight="700" letter-spacing="1" text-anchor="middle" '+
       'style="font-family:var(--font-display);text-transform:uppercase">'+esc(p.name)+'</text></g>');
@@ -1557,7 +1456,11 @@ function flapInto(node,text,order){
 
 function renderMatchday(body){
   var m=STATE.model, i=m.latest;
-  var rows=m.players.map(function(p){ return {p:p, v:p.scores[i]}; })
+  var squad=eraFor(seasonPlan(STATE.lmodel).slice(-1)[0].season).roster.map(function(n){ return String(n).toLowerCase(); });
+  var shown=m.players.filter(function(p){
+    return p.scores[i]!=null || squad.indexOf(p.key.toLowerCase())>-1;
+  });
+  var rows=shown.map(function(p){ return {p:p, v:p.scores[i]}; })
     .sort(function(a,b){
       if(a.v==null&&b.v==null) return 0;
       if(a.v==null) return 1; if(b.v==null) return -1;
@@ -1580,7 +1483,7 @@ function renderMatchday(body){
   if(played.length>1){
     html+='<div class="streakbar"><span class="s">Margin <b class="num">'+
       fmtInt(played[0].v-played[1].v)+'</b></span>'+
-      '<span class="s">Played <b class="num">'+played.length+'</b>/'+m.players.length+'</span>'+
+      '<span class="s">Played <b class="num">'+played.length+'</b>/'+shown.length+'</span>'+
       '<span class="s">Matchday total <b class="num">'+
       fmtInt(played.reduce(function(a,r){return a+r.v;},0))+'</b></span></div>';
   }
@@ -1653,8 +1556,12 @@ function renderTable(body){
   });
   h+='</tbody></table></div>';
   if(ps.length>=4)
-    h+='<div class="zonekey"><span><i style="background:rgba(30,107,255,.55)"></i>Qualification '+
-       helpIcon(TIP_ZONE)+'</span><span><i style="background:rgba(30,107,255,.24)"></i>Play-off places</span></div>';
+    h+='<div class="zonekey"><span><i style="background:rgba(255,255,255,.55)"></i>Qualification '+
+       helpIcon(TIP_ZONE)+'</span><span><i style="background:rgba(255,255,255,.2)"></i>Play-off places</span></div>';
+  if(STATE.forfeits&&STATE.forfeits.length)
+    h+='<div class="pnote" style="margin-top:9px">'+STATE.forfeits.length+' forfeit entries '+
+       '(opponent minus '+fmtInt(FORFEIT_GAP)+') are excluded from these stats \u2014 they still '+
+       'count as league results.</div>';
   if(m.scoped)
     h+='<div class="pnote" style="margin-top:9px">Best/worst round are all-time figures from the '+
        'sheet and cannot be split by month, so they are hidden in a monthly view.</div>';
@@ -1706,7 +1613,7 @@ function renderRolling(body){
    and would otherwise snap every figure to the origin.
    ========================================================================== */
 function playerArt(color,id){
-  var skin="#f2dcc0", dark="#08122e";
+  var skin="#f2dcc0", dark="#0b0b0d";
   return '<g class="kit">'+
     /* legs + socks */
     '<path d="M24.5 66 q-1 11 -1.5 20 h6 q0.5 -10 1 -20Z" fill="'+skin+'"/>'+
@@ -1757,7 +1664,7 @@ function renderPodium(body){
         '<stop offset="0" stop-color="'+p.color+'" stop-opacity=".2"/>'+
         '<stop offset="1" stop-color="'+p.color+'" stop-opacity="0"/></linearGradient>'+
       '<linearGradient id="face'+r+'" x1="0" y1="0" x2="0" y2="1">'+
-        '<stop offset="0" stop-color="#173a7e"/><stop offset="1" stop-color="#081842"/></linearGradient>'+
+        '<stop offset="0" stop-color="#1d1e23"/><stop offset="1" stop-color="#101114"/></linearGradient>'+
       '<linearGradient id="refl'+r+'" x1="0" y1="0" x2="0" y2="1">'+
         '<stop offset="0" stop-color="'+p.color+'" stop-opacity=".18"/>'+
         '<stop offset="1" stop-color="'+p.color+'" stop-opacity="0"/></linearGradient>'+
@@ -1784,18 +1691,17 @@ function renderPodium(body){
       '<text x="'+(x+20)+'" y="'+(ty+23.5)+'" text-anchor="middle" fill="#2a1c05" '+
         'font-size="12" font-weight="700" style="font-family:var(--font-display)">'+(r+1)+'</text>'+
       '<text x="'+cx+'" y="'+(ty+h*0.66)+'" text-anchor="middle" fill="'+p.color+'" '+
-        'font-size="34" font-weight="700" style="font-family:var(--font-display);'+
-        'filter:drop-shadow(0 0 9px '+p.color+'88)">'+p.wins+'</text>'+
-      '<text x="'+cx+'" y="'+(ty+h*0.66+13)+'" text-anchor="middle" fill="#6b83b3" '+
+        'font-size="34" font-weight="700" style="font-family:var(--font-display)">'+p.wins+'</text>'+
+      '<text x="'+cx+'" y="'+(ty+h*0.66+13)+'" text-anchor="middle" fill="#7a7f89" '+
         'font-size="9" letter-spacing="1.6" style="font-family:ui-monospace,monospace">WINS</text>'+
       '</g>';
     var sc=0.74, px=cx-30*sc, py=(ty-d+2)-92*sc;
     scene+='<g transform="translate('+px.toFixed(1)+','+py.toFixed(1)+') scale('+sc+')">'+
       '<g class="kit-enter" style="animation-delay:'+(slot*0.09)+'s">'+playerArt(p.color,r)+'</g></g>';
-    labels+='<text x="'+cx+'" y="'+(floorY+22)+'" text-anchor="middle" fill="#eef4ff" '+
+    labels+='<text x="'+cx+'" y="'+(floorY+22)+'" text-anchor="middle" fill="#f5f6f8" '+
       'font-size="15" font-weight="700" letter-spacing="1" '+
       'style="font-family:var(--font-display);text-transform:uppercase">'+esc(p.name)+'</text>'+
-      '<text x="'+cx+'" y="'+(floorY+38)+'" text-anchor="middle" fill="#6b83b3" '+
+      '<text x="'+cx+'" y="'+(floorY+38)+'" text-anchor="middle" fill="#7a7f89" '+
       'font-size="10.5" letter-spacing="1" style="font-family:ui-monospace,monospace">'+
       (contested?Math.round(p.wins/contested*100):0)+'% OF DAYS</text>';
   });
@@ -1803,9 +1709,9 @@ function renderPodium(body){
   var svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Podium of daily wins">'+
     '<defs>'+defs+
       '<linearGradient id="floorline" x1="0" y1="0" x2="1" y2="0">'+
-        '<stop offset="0" stop-color="#8cb4ff" stop-opacity="0"/>'+
-        '<stop offset=".5" stop-color="#8cb4ff" stop-opacity=".5"/>'+
-        '<stop offset="1" stop-color="#8cb4ff" stop-opacity="0"/></linearGradient>'+
+        '<stop offset="0" stop-color="#ffffff" stop-opacity="0"/>'+
+        '<stop offset=".5" stop-color="#ffffff" stop-opacity=".5"/>'+
+        '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>'+
     '</defs>'+beams+refl+
     '<rect x="20" y="'+floorY+'" width="'+(W-40)+'" height="1.4" fill="url(#floorline)"/>'+
     scene+labels+'</svg>';
@@ -1845,16 +1751,16 @@ function renderSquad(body){
     var cfg=PLAYER_CONFIG.filter(function(c){return c.key===key;})[0];
     $("[data-name]",row).addEventListener("input",function(e){
       if(cfg) cfg.name=e.target.value||key;
-      STATE.model.players.forEach(function(p){ if(p.key===key) p.name=e.target.value||key; });
+      [STATE.model,STATE.lmodel].forEach(function(M){ if(M) M.players.forEach(function(p){ if(p.key===key) p.name=e.target.value||key; }); });
       STATE.view=null;
-      refreshAll(["road","matchday","table","monthly","monthwins","history","rolling","podium"]);
+      refreshAll(["road","matchday","table","monthly","monthwins","history","rolling","podium","league","fixtures","positions","records","h2h","hall"]);
     });
     $("[data-color]",row).addEventListener("input",function(e){
       if(cfg) cfg.color=e.target.value;
-      STATE.model.players.forEach(function(p){ if(p.key===key) p.color=e.target.value; });
+      [STATE.model,STATE.lmodel].forEach(function(M){ if(M) M.players.forEach(function(p){ if(p.key===key) p.color=e.target.value; }); });
       row.style.color=e.target.value;
       STATE.view=null;
-      refreshAll(["road","matchday","table","monthly","monthwins","history","rolling","podium"]);
+      refreshAll(["road","matchday","table","monthly","monthwins","history","rolling","podium","league","fixtures","positions","records","h2h","hall"]);
     });
   });
 }
@@ -2001,76 +1907,124 @@ function renderMonthWins(body){
 
 
 /* ============================================================================
-   16. LEAGUE FORMAT
+   16. LEAGUE FORMAT  —  EDIT LEAGUE_ERAS TO CHANGE THE SQUAD OR RULES
    ----------------------------------------------------------------------------
-   A fixture is simply two players' scores on the same matchday:
-     margin > DRAW_MARGIN  -> win / loss      (WIN_PTS / LOSS_PTS)
-     margin <= DRAW_MARGIN -> draw            (DRAW_PTS each)
+   A fixture is two players' scores on the same matchday:
+     margin >  drawMargin  -> win / loss   (WIN_PTS / LOSS_PTS)
+     margin <= drawMargin  -> draw         (DRAW_PTS each)
 
-   Fixtures come from a circle-method round robin, so with 6 players everyone
-   meets everyone once over 5 rounds, and the reverse fixtures fill rounds 6-10
-   — exactly the 10 rounds you asked for. Nothing extra is needed in the sheet.
+   The squad and the draw threshold are set per ERA. Each era applies from its
+   `from` season onward, so earlier seasons are frozen exactly as they were
+   played: changing the squad never rewrites a past season.
 
-   A SEASON is a block of consecutive matchdays, one per round. With 6 players
-   that is 10 matchdays; matchday 11 kicks off a fresh season, so the league
-   keeps running instead of freezing once the first 10 days are used.
+   `roster` lists the players by their row label in the spreadsheet, in fixture
+   order. A replacement keeps the same position as the player they replace, so
+   they inherit that player's fixture slot in the round-robin.
    ========================================================================== */
-var DRAW_MARGIN = 3000;   /* within this many points = a draw */
-var WIN_PTS     = 3;
-var DRAW_PTS    = 1;
-var LOSS_PTS    = 0;
+var LEAGUE_ERAS = [
+  { from:1, drawMargin:3000, missed:"void",
+    roster:["Ewan Mc","Dan","Paul Mc","Billzo","Cobbola","Slosher"] },
+  { from:6, drawMargin:2000, missed:"walkover",
+    roster:["Ewan Mc","Dan","Paul Mc","Billzo","Cobbola","Liam"] }     /* Liam replaces Slosher */
+];
+
+/* FORFEITS. A missed day can be recorded two ways, with the same result:
+     1. Enter the absent player's score as their opponent's minus FORFEIT_GAP
+        (3,001). From Season 6, opponent minus 2,001 (one over the new
+        threshold) is also recognised.
+     2. Leave the cell blank. In an era with missed:"walkover", the player who
+        did play takes the win automatically.
+   Forfeit entries count in the league exactly as before, but are removed from
+   every Dashboard stat, because they are not real scores. A blank on the most
+   recent matchday is shown as "awaiting" rather than forfeited, so nobody loses
+   for not having played yet today. */
+var FORFEIT_GAP = 3001;
+var WIN_PTS  = 3;
+var DRAW_PTS = 1;
+var LOSS_PTS = 0;
 
 /* What happens when a fixture can't be played because someone missed the day.
-     "void"     - no points to either player (a postponed game)
-     "walkover" - the player who did post a score takes the win           */
+     "void"     - postponed: no points to either player
+     "walkover" - the player who did post a score takes the win            */
 var MISSED_FIXTURE = "void";
 
-/* Circle-method round robin. Returns rounds of [i,j] index pairs; with an odd
-   squad one player sits out each round (a bye). */
+function eraFor(season){                      /* season is 1-based */
+  var e=LEAGUE_ERAS[0];
+  LEAGUE_ERAS.forEach(function(x){ if(x.from<=season) e=x; });
+  return e;
+}
+
+/* Circle-method round robin: rounds of [i,j] index pairs, then the reverse
+   fixtures, so everyone meets everyone twice. Odd squads get a bye. */
 function roundRobin(n){
   var ids=[],i;
   for(i=0;i<n;i++) ids.push(i);
-  if(n%2) ids.push(-1);                      /* -1 = bye */
+  if(n%2) ids.push(-1);
   var m=ids.length, fixed=ids[0], rot=ids.slice(1), rounds=[];
   for(var r=0;r<m-1;r++){
     var pairs=[[fixed,rot[0]]];
     for(i=1;i<m/2;i++) pairs.push([rot[i],rot[rot.length-i]]);
     rounds.push(pairs.filter(function(p){ return p[0]>=0&&p[1]>=0; }));
-    rot.unshift(rot.pop());                  /* rotate */
+    rot.unshift(rot.pop());
   }
-  /* second half of the season: the same fixtures again */
   return rounds.concat(rounds.map(function(rd){
     return rd.map(function(p){ return [p[1],p[0]]; });
   }));
 }
 
-/* Matchday date indices — any date where at least one score was posted. */
+/* Matchday date indices: any date where at least one score was posted. */
 function matchdayIndices(model){
   var out=[];
   model.dates.forEach(function(d,i){ if(model.winners[i].length) out.push(i); });
   return out;
 }
 
-function seasonCount(model){
-  var n=model.players.length;
-  if(n<2) return 0;
-  var per=roundRobin(n).length;
-  return Math.max(1,Math.ceil(matchdayIndices(model).length/per));
+/* Season boundaries, walking forward era by era (eras can differ in size).
+   Always includes the season in progress — or, if the last one has just
+   finished, the next season as "upcoming" with nothing played yet. */
+function seasonPlan(model){
+  var mds=matchdayIndices(model), plan=[], start=0, s=1;
+  while(true){
+    var per=roundRobin(eraFor(s).roster.length).length;
+    plan.push({ season:s, start:start, per:per, mds:mds.slice(start,start+per) });
+    if(start+per>=mds.length) break;
+    start+=per; s++;
+  }
+  var last=plan[plan.length-1];
+  if(last.mds.length===last.per)
+    plan.push({ season:s+1, start:start+last.per,
+                per:roundRobin(eraFor(s+1).roster.length).length, mds:[] });
+  return plan;
+}
+function seasonCount(model){ return model.players.length<2 ? 0 : seasonPlan(model).length; }
+
+/* Resolve an era roster against the sheet. Matching is case-insensitive. A
+   name not found (e.g. a new player with no scores yet) becomes a placeholder
+   whose fixtures are postponed, so the season still renders correctly. */
+function resolveRoster(model,roster){
+  return roster.map(function(name,i){
+    var hit=model.players.filter(function(p){
+      return p.key.trim().toLowerCase()===String(name).trim().toLowerCase();
+    })[0];
+    if(hit) return hit;
+    var blank=model.dates.map(function(){ return null; });
+    return { key:name, name:name, color:KIT_COLORS[(model.players.length+i)%KIT_COLORS.length],
+             badge:"\u26BD", scores:blank, missing:true };
+  });
 }
 
 /* ----------------------------------------------------------------------------
-   buildLeague(model, season)  ->  { rounds, table, per, played, total }
-   season is 0-based. Everything is recomputed from daily scores.
+   buildLeague(model, seasonIdx)   seasonIdx is 0-based
    -------------------------------------------------------------------------- */
 function buildLeague(model,season){
-  var ps=model.players, n=ps.length;
-  var fixtures=roundRobin(n), per=fixtures.length;
-  var mds=matchdayIndices(model);
-  var from=season*per, slice=mds.slice(from,from+per);
+  var plan=seasonPlan(model)[season]||seasonPlan(model).slice(-1)[0];
+  var era=eraFor(plan.season), margin=era.drawMargin;
+  var ps=resolveRoster(model,era.roster);
+  var fixtures=roundRobin(ps.length), slice=plan.mds;
 
   var row={};
   ps.forEach(function(p){
-    row[p.key]={ p:p, P:0,W:0,D:0,L:0,PF:0,PA:0,Pts:0, form:[] };
+    row[p.key]={ p:p, P:0,W:0,D:0,L:0,PF:0,PA:0,Pts:0, form:[], seq:[] };
   });
 
   var rounds=fixtures.map(function(pairs,r){
@@ -2078,18 +2032,22 @@ function buildLeague(model,season){
     var games=pairs.map(function(pr){
       var A=ps[pr[0]], B=ps[pr[1]];
       var sa=di==null?null:A.scores[di], sb=di==null?null:B.scores[di];
-      var g={a:A,b:B,sa:sa,sb:sb,state:"upcoming",margin:null,res:null};
+      var g={a:A,b:B,sa:sa,sb:sb,state:"upcoming",margin:null,res:null,round:r+1,forfeit:null};
       if(di==null) return g;
-      if(sa==null&&sb==null){ g.state="void"; return g; }
       if(sa==null||sb==null){
-        if(MISSED_FIXTURE!=="walkover"){ g.state="void"; return g; }
-        g.state="walkover"; g.res=(sa==null)?"b":"a";
+        /* today's results may still be coming in */
+        if(di===model.latest){ g.state="pending"; return g; }
+        if(sa==null&&sb==null){ g.state="void"; return g; }
+        if((era.missed||MISSED_FIXTURE)!=="walkover"){ g.state="void"; return g; }
+        g.state="walkover"; g.res=(sa==null)?"b":"a"; g.forfeit=(sa==null)?"a":"b";
       } else {
         g.state="played";
         g.margin=Math.abs(sa-sb);
-        g.res = g.margin<=DRAW_MARGIN ? "d" : (sa>sb?"a":"b");
+        g.res = g.margin<=margin ? "d" : (sa>sb?"a":"b");
+        /* a score entered exactly one forfeit-gap below the opponent's */
+        if(g.res!=="d" && (g.margin===FORFEIT_GAP || g.margin===margin+1))
+          g.forfeit = sa<sb ? "a" : "b";
       }
-      /* award points */
       var ra=row[A.key], rb=row[B.key];
       ra.P++; rb.P++;
       if(sa!=null){ ra.PF+=sa; rb.PA+=sa; }
@@ -2109,113 +2067,380 @@ function buildLeague(model,season){
     return { round:r+1, dateIdx:di, date:di==null?null:model.dates[di], games:games };
   });
 
-  var table=ps.map(function(p){ return row[p.key]; }).sort(function(a,b){
+  var cmp=function(a,b){
     return (b.Pts-a.Pts) || ((b.PF-b.PA)-(a.PF-a.PA)) || (b.PF-a.PF) ||
            a.p.name.localeCompare(b.p.name);
-  });
+  };
+  var table=ps.map(function(p){ return row[p.key]; }).sort(cmp);
   var played=rounds.filter(function(r){ return r.dateIdx!=null; }).length;
-  return { rounds:rounds, table:table, per:per, played:played, season:season };
+  return { rounds:rounds, table:table, per:plan.per, played:played, season:season,
+           seasonNo:plan.season, margin:margin, era:era, roster:ps,
+           complete:(played===plan.per), cmp:cmp };
+}
+
+/* Every hand-entered forfeit score, as {key, dateIdx}. */
+function forfeitCells(model){
+  var out=[];
+  allSeasons(model).forEach(function(L){
+    L.rounds.forEach(function(rd){ rd.games.forEach(function(g){
+      if(g.state==="played"&&g.forfeit)
+        out.push({ key:(g.forfeit==="a"?g.a:g.b).key, dateIdx:rd.dateIdx });
+    }); });
+  });
+  return out;
+}
+/* The parse with those forfeit scores blanked out. */
+function withoutForfeits(parsed,cells){
+  var daily={};
+  Object.keys(parsed.daily).forEach(function(k){ daily[k]=parsed.daily[k].slice(); });
+  cells.forEach(function(c){ if(daily[c.key]) daily[c.key][c.dateIdx]=null; });
+  var out={}; Object.keys(parsed).forEach(function(k){ out[k]=parsed[k]; });
+  out.daily=daily;
+  return out;
+}
+
+/* League position after each played round (for the position chart). */
+function positionsByRound(L){
+  var run={}, out={};
+  L.roster.forEach(function(p){
+    run[p.key]={p:p,Pts:0,PF:0,PA:0}; out[p.key]=[];
+  });
+  L.rounds.forEach(function(rd){
+    if(rd.dateIdx==null) return;
+    rd.games.forEach(function(g){
+      if(g.state==="upcoming"||g.state==="void"||g.state==="pending") return;
+      var ra=run[g.a.key], rb=run[g.b.key];
+      if(g.sa!=null){ ra.PF+=g.sa; rb.PA+=g.sa; }
+      if(g.sb!=null){ rb.PF+=g.sb; ra.PA+=g.sb; }
+      if(g.res==="d"){ ra.Pts+=DRAW_PTS; rb.Pts+=DRAW_PTS; }
+      else if(g.res==="a"){ ra.Pts+=WIN_PTS; rb.Pts+=LOSS_PTS; }
+      else { rb.Pts+=WIN_PTS; ra.Pts+=LOSS_PTS; }
+    });
+    var order=Object.keys(run).map(function(k){ return run[k]; }).sort(L.cmp);
+    order.forEach(function(r,i){ out[r.p.key].push(i+1); });
+  });
+  return out;
+}
+
+/* Every league season, for all-time views (head-to-head, hall of fame). */
+function allSeasons(model){
+  var n=seasonCount(model), out=[];
+  for(var s=0;s<n;s++) out.push(buildLeague(model,s));
+  return out;
+}
+
+/* Run lengths in a W/D/L sequence. */
+function longestRun(seq,ok){
+  var best=0,cur=0;
+  seq.forEach(function(x){ if(ok(x)){ cur++; if(cur>best) best=cur; } else cur=0; });
+  return best;
 }
 
 /* ============================================================================
-   17. PANEL: LEAGUE TABLE
+   17. LEAGUE PANELS
    ========================================================================== */
-var TIP_LEAGUE='<b>How the league works</b> \u2014 every matchday, three fixtures are played from '+
-  'a fixed round-robin draw, so everyone meets everyone twice across '+
-  '<b>10 rounds</b>. A fixture compares the two players\u2019 scores that day: more than '+
-  '<code>3,000</code> apart is a win, within <code>3,000</code> is a draw. '+
-  'Three points for a win, one for a draw. Nothing extra is needed in the spreadsheet \u2014 '+
-  'it is all derived from the daily scores.';
+function tipLeague(L){
+  return '<b>How the league works</b> \u2014 every matchday, three fixtures are played from a fixed '+
+    'round-robin draw, so everyone meets everyone twice across <b>'+L.per+' rounds</b>. A fixture '+
+    'compares the two players\u2019 scores that day: more than <code>'+fmtInt(L.margin)+'</code> apart '+
+    'is a win, within <code>'+fmtInt(L.margin)+'</code> is a draw. '+WIN_PTS+' points for a win, '+
+    DRAW_PTS+' for a draw. Nothing extra is needed in the spreadsheet.';
+}
 var TIP_PFPA='<b>PF / PA / PD</b> \u2014 points For and Against are the raw TimeGuessr scores from '+
-  'your fixtures (the league equivalent of goals), and PD is the difference. PD then PF break '+
-  'ties on points, just like goal difference.';
-var TIP_VOID='<b>Postponed fixtures</b> \u2014 if either player missed that day the fixture is void '+
-  'and neither takes points, so nobody is punished for a day off. Players can therefore have '+
-  'games in hand \u2014 watch the <b>P</b> column. To make a no-show a forfeit instead, set '+
-  '<code>MISSED_FIXTURE = "walkover"</code> near the top of the script.';
+  'your fixtures (the league\u2019s goals); PD is the difference. Ties on points are broken by PD, '+
+  'then PF.';
+var TIP_PPG='<b>PPG</b> \u2014 points per game. Postponed fixtures leave some players with games in '+
+  'hand, so PPG is the fairest like-for-like comparison mid-season.';
+var TIP_VOID='<b>Postponed fixtures</b> \u2014 if either player missed the day, the fixture is void '+
+  'and neither takes points. To make a no-show a forfeit instead, set '+
+  '<code>MISSED_FIXTURE = "walkover"</code> in the script.';
+var TIP_H2H='<b>Head-to-head</b> \u2014 every league fixture ever played between each pair, read '+
+  'across a row: that player\u2019s wins\u2013draws\u2013losses against the column player. Uses '+
+  'each season\u2019s own draw threshold, and forfeits count as results. A dot means the two have never met.';
+var TIP_POS='<b>League position by round</b> \u2014 where everyone sat in the table after each '+
+  'round of the selected season, using the same tie-breaks as the table.';
 
+function currentSeason(){
+  var total=seasonCount(STATE.lmodel);
+  if(STATE.season==null||STATE.season>=total||STATE.season<0) STATE.season=Math.max(0,total-1);
+  return STATE.season;
+}
 function formBadges(form){
   return '<span class="form">'+form.slice(-5).map(function(f){
     return '<i class="f'+f+'">'+f+'</i>';
   }).join("")+'</span>';
 }
-
-/* Season chips live in the shared top bar (see renderSeasonBar), so the two
-   league panels never draw duplicate selectors. */
-function currentSeason(){
-  var total=seasonCount(STATE.model);
-  if(STATE.season==null||STATE.season>=total||STATE.season<0) STATE.season=Math.max(0,total-1);
-  return STATE.season;
+function nameTag(p){
+  return '<span class="pname" style="--pc:'+p.color+'">'+esc(p.name)+'</span>';
+}
+function noLeague(body){
+  body.innerHTML='<div class="empty">A league needs at least two players.</div>';
 }
 
+/* ---------------- League table ---------------- */
 function renderLeague(body){
-  var m=STATE.model;
-  if(m.players.length<2){ body.innerHTML='<div class="empty">A league needs at least two players.</div>'; return; }
+  var m=STATE.lmodel; if(m.players.length<2) return noLeague(body);
   var L=buildLeague(m,currentSeason());
+  var missing=L.roster.filter(function(p){ return p.missing; });
 
-  var h='<div class="pnote" style="margin-bottom:9px">ROUND '+Math.min(L.played,L.per)+' OF '+L.per+
-     ' '+helpIcon(TIP_LEAGUE)+'</div>';
-  h+='<div style="overflow-x:auto"><table><thead><tr>'+
+  var h='<div class="kicker">Season '+L.seasonNo+' \u00B7 '+
+    (L.played?'Round '+L.played+' of '+L.per:'Kicks off next matchday')+
+    ' '+helpIcon(tipLeague(L))+'</div>';
+  if(missing.length)
+    h+='<div class="note">'+missing.map(function(p){ return '<b>'+esc(p.name)+'</b>'; }).join(", ")+
+      ' '+(missing.length>1?'have':'has')+' no scores in the sheet yet, so '+
+      (missing.length>1?'their':'their')+' fixtures show as postponed until the first score lands.</div>';
+  h+='<div class="tscroll"><table class="ltable"><thead><tr>'+
      '<th>#</th><th>Player</th><th>P '+helpIcon(TIP_VOID)+'</th><th>W</th><th>D</th><th>L</th>'+
-     '<th>PF '+helpIcon(TIP_PFPA)+'</th><th>PA</th><th>PD</th><th>Pts</th><th>Form</th>'+
-     '</tr></thead><tbody>';
+     '<th class="mh">PF '+helpIcon(TIP_PFPA)+'</th><th class="mh">PA</th><th class="mh">PD</th>'+
+     '<th class="mh">PPG '+helpIcon(TIP_PPG)+'</th>'+
+     '<th>Pts</th><th>Form</th></tr></thead><tbody>';
   L.table.forEach(function(r,i){
-    var pd=r.PF-r.PA, zone=i===0?"q1":(i<3?"q2":"");
-    h+='<tr class="'+zone+'"><td class="pos">'+(i+1)+'</td>'+
-      '<td><div class="who"><span class="chip" style="background:'+r.p.color+';color:'+r.p.color+'"></span>'+
-        '<span class="nm">'+esc(r.p.name)+'</span></div></td>'+
+    var pd=r.PF-r.PA;
+    h+='<tr class="'+(i===0?"lead":"")+'"><td class="pos">'+(i+1)+'</td>'+
+      '<td>'+nameTag(r.p)+'</td>'+
       '<td class="num">'+r.P+'</td><td class="num">'+r.W+'</td><td class="num">'+r.D+'</td>'+
       '<td class="num">'+r.L+'</td>'+
-      '<td class="num">'+fmtInt(r.PF)+'</td><td class="num">'+fmtInt(r.PA)+'</td>'+
-      '<td class="num" style="color:'+(pd>0?"var(--good)":(pd<0?"var(--bad)":"var(--ink-mid)"))+'">'+
-        (pd>0?"+":"")+fmtInt(pd)+'</td>'+
-      '<td class="big num" style="color:var(--gold)">'+r.Pts+'</td>'+
+      '<td class="num mh">'+fmtInt(r.PF)+'</td><td class="num mh">'+fmtInt(r.PA)+'</td>'+
+      '<td class="num mh '+(pd>0?"up":(pd<0?"down":""))+'">'+(pd>0?"+":"")+fmtInt(pd)+'</td>'+
+      '<td class="num mh">'+(r.P?(r.Pts/r.P).toFixed(2):"\u2014")+'</td>'+
+      '<td class="pts num">'+r.Pts+'</td>'+
       '<td>'+formBadges(r.form)+'</td></tr>';
   });
   h+='</tbody></table></div>';
-  h+='<div class="zonekey"><span><i style="background:rgba(30,107,255,.55)"></i>Champion</span>'+
-     '<span><i style="background:rgba(30,107,255,.24)"></i>Podium places</span>'+
-     '<span>Win &gt; '+fmtInt(DRAW_MARGIN)+' \u00B7 draw within '+fmtInt(DRAW_MARGIN)+
-     ' \u00B7 '+WIN_PTS+'/'+DRAW_PTS+'/'+LOSS_PTS+' pts</span></div>';
+  h+='<div class="rulestrip"><span>Win &gt; '+fmtInt(L.margin)+'</span><span>Draw \u2264 '+
+     fmtInt(L.margin)+'</span><span>'+WIN_PTS+' \u00B7 '+DRAW_PTS+' \u00B7 '+LOSS_PTS+' pts</span>'+
+     '<span>Missed day = '+((L.era.missed||MISSED_FIXTURE)==="walkover"?'forfeit':'postponed')+'</span>'+
+     (L.seasonNo>1&&eraFor(L.seasonNo).drawMargin!==eraFor(L.seasonNo-1).drawMargin?
+       '<span class="chg">Threshold changed this season</span>':'')+'</div>';
   body.innerHTML=h;
 }
 
-/* ============================================================================
-   18. PANEL: FIXTURES & RESULTS
-   ========================================================================== */
+/* ---------------- Fixtures & results ---------------- */
 function renderFixtures(body){
-  var m=STATE.model;
-  if(m.players.length<2){ body.innerHTML='<div class="empty">A league needs at least two players.</div>'; return; }
+  var m=STATE.lmodel; if(m.players.length<2) return noLeague(body);
   var L=buildLeague(m,currentSeason());
-
-  var h='<div class="pnote" style="margin-bottom:9px">FIXTURES &amp; RESULTS</div><div class="rounds">';
+  var h='<div class="kicker">Season '+L.seasonNo+' \u00B7 '+L.per+' rounds</div><div class="rounds">';
   L.rounds.forEach(function(rd){
-    var live=(rd.round===L.played);
-    h+='<div class="round'+(rd.dateIdx==null?" future":"")+'">'+
+    var latest=(rd.round===L.played);
+    h+='<div class="round'+(rd.dateIdx==null?" future":"")+(latest?" latest":"")+'">'+
        '<div class="rhead"><span class="rno">Round '+rd.round+'</span>'+
-       '<span class="rdate">'+(rd.date?esc(fmtDateLong(rd.date)):"to be played")+'</span>'+
-       (live?'<span class="livetag">LATEST</span>':'')+'</div>';
+       (latest?'<span class="tag live">Latest</span>':'')+
+       '<span class="rdate">'+(rd.date?esc(fmtDateLong(rd.date)):"To be played")+'</span></div>';
     rd.games.forEach(function(g){
       var aw=(g.res==="a"), bw=(g.res==="b"), dr=(g.res==="d");
       var mid = g.state==="upcoming" ? '<span class="vs">v</span>'
-              : g.state==="void" ? '<span class="vs void">P-P</span>'
-              : dr ? '<span class="vs draw">DRAW</span>'
+              : g.state==="pending" ? '<span class="vs wait">Awaiting</span>'
+              : g.state==="void" ? '<span class="vs void">P\u2013P</span>'
+              : g.forfeit ? '<span class="vs ff">Forfeit</span>'
+              : dr ? '<span class="vs draw">Draw</span>'
               : '<span class="vs win">+'+fmtInt(g.margin==null?0:g.margin)+'</span>';
+      var scA = g.forfeit==="a" ? '<span class="ffmark">FF</span>' : (g.sa==null?"\u2013":fmtInt(g.sa));
+      var scB = g.forfeit==="b" ? '<span class="ffmark">FF</span>' : (g.sb==null?"\u2013":fmtInt(g.sb));
       h+='<div class="fix">'+
-        '<span class="side a'+(aw?" w":"")+(bw?" l":"")+'" style="'+(aw?"color:"+g.a.color:"")+'">'+
+        '<span class="side a'+(aw?" w":"")+(bw?" l":"")+'"'+(aw?' style="color:'+g.a.color+'"':'')+'>'+
           esc(g.a.name)+'</span>'+
-        '<span class="sc">'+(g.sa==null?"\u2013":fmtInt(g.sa))+'</span>'+
-        mid+
-        '<span class="sc">'+(g.sb==null?"\u2013":fmtInt(g.sb))+'</span>'+
-        '<span class="side b'+(bw?" w":"")+(aw?" l":"")+'" style="'+(bw?"color:"+g.b.color:"")+'">'+
-          esc(g.b.name)+'</span>'+
-        '</div>';
+        '<span class="sc'+(aw?" w":"")+'">'+scA+'</span>'+mid+
+        '<span class="sc'+(bw?" w":"")+'">'+scB+'</span>'+
+        '<span class="side b'+(bw?" w":"")+(aw?" l":"")+'"'+(bw?' style="color:'+g.b.color+'"':'')+'>'+
+          esc(g.b.name)+'</span></div>';
     });
     h+='</div>';
   });
+  body.innerHTML=h+'</div>';
+  /* bring the latest round into view inside the scrolling list */
+  var box=body.querySelector(".rounds"), lat=body.querySelector(".round.latest");
+  if(box&&lat) box.scrollTop=Math.max(0,lat.offsetTop-box.offsetTop-8);
+}
+
+/* ---------------- Position by round ---------------- */
+function renderPositions(body){
+  var m=STATE.lmodel; if(m.players.length<2) return noLeague(body);
+  var L=buildLeague(m,currentSeason()), pos=positionsByRound(L), N=L.roster.length;
+  if(!L.played){
+    body.innerHTML='<div class="kicker">Season '+L.seasonNo+'</div>'+
+      '<div class="empty">The chart starts after the first round of Season '+L.seasonNo+'.</div>';
+    return;
+  }
+  var W=760, T=22, B=34, Lp=34, R=96, row=34, H=T+B+(N-1)*row;
+  var X=function(r){ return Lp+(W-Lp-R)*(L.per<2?0:(r-1)/(L.per-1)); };
+  var Y=function(p){ return T+(p-1)*row; };
+  var s=['<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="League position after each round">'];
+  for(var p=1;p<=N;p++){
+    s.push('<line x1="'+Lp+'" x2="'+(W-R)+'" y1="'+Y(p)+'" y2="'+Y(p)+'" class="gridln"/>',
+      '<text x="'+(Lp-12)+'" y="'+(Y(p)+4)+'" text-anchor="end" class="axl">'+p+'</text>');
+  }
+  for(var r=1;r<=L.per;r++)
+    s.push('<text x="'+X(r).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle" class="axl'+
+      (r>L.played?' dim':'')+'">R'+r+'</text>');
+  L.roster.forEach(function(pl){
+    var seq=pos[pl.key]; if(!seq||!seq.length) return;
+    var d=seq.map(function(v,i){ return (i?"L":"M")+X(i+1).toFixed(1)+" "+Y(v); }).join("");
+    s.push('<path d="'+d+'" fill="none" stroke="'+pl.color+'" stroke-width="3" '+
+      'stroke-linejoin="round" stroke-linecap="round"/>');
+    seq.forEach(function(v,i){
+      s.push('<circle cx="'+X(i+1).toFixed(1)+'" cy="'+Y(v)+'" r="4.2" fill="'+pl.color+'" '+
+        'stroke="var(--panel)" stroke-width="2"/>');
+    });
+    var last=seq.length;
+    s.push('<text x="'+(X(last)+12).toFixed(1)+'" y="'+(Y(seq[last-1])+4)+'" class="bumpname" '+
+      'fill="'+pl.color+'">'+esc(pl.name)+'</text>');
+  });
+  s.push('</svg>');
+  body.innerHTML='<div class="kicker">Season '+L.seasonNo+' \u00B7 after round '+L.played+' '+
+    helpIcon(TIP_POS)+'</div><div class="chart-wrap bump">'+s.join("")+'</div>';
+}
+
+/* ---------------- Season records ---------------- */
+function renderRecords(body){
+  var m=STATE.lmodel; if(m.players.length<2) return noLeague(body);
+  var L=buildLeague(m,currentSeason());
+  var games=[];
+  /* score-based records use genuine games only: a forfeit is a result, not a score */
+  L.rounds.forEach(function(rd){ rd.games.forEach(function(g){
+    if(g.state==="played"&&!g.forfeit) games.push(g);
+  }); });
+  var forfeits=0;
+  L.rounds.forEach(function(rd){ rd.games.forEach(function(g){ if(g.forfeit) forfeits++; }); });
+  if(!games.length){
+    body.innerHTML='<div class="kicker">Season '+L.seasonNo+'</div>'+
+      '<div class="empty">Records appear once Season '+L.seasonNo+' has a result.</div>';
+    return;
+  }
+  var wins=games.filter(function(g){ return g.res!=="d"; });
+  var draws=games.filter(function(g){ return g.res==="d"; });
+  var winner=function(g){ return g.res==="a"?g.a:g.b; };
+  var loser =function(g){ return g.res==="a"?g.b:g.a; };
+  var big=wins.slice().sort(function(a,b){ return b.margin-a.margin; })[0];
+  var close=wins.slice().sort(function(a,b){ return a.margin-b.margin; })[0];
+  var top=null;
+  games.forEach(function(g){
+    [[g.a,g.sa],[g.b,g.sb]].forEach(function(x){ if(!top||x[1]>top.v) top={p:x[0],v:x[1],r:g.round}; });
+  });
+  /* runs, per player, across the season's fixtures in order */
+  var seqs={};
+  L.roster.forEach(function(p){ seqs[p.key]=[]; });
+  L.rounds.forEach(function(rd){
+    rd.games.forEach(function(g){
+      if(g.state!=="played"&&g.state!=="walkover") return;
+      seqs[g.a.key].push(g.res==="d"?"D":(g.res==="a"?"W":"L"));
+      seqs[g.b.key].push(g.res==="d"?"D":(g.res==="b"?"W":"L"));
+    });
+  });
+  var best=function(ok){
+    var b={n:0,ps:[]};
+    L.roster.forEach(function(p){
+      var n=longestRun(seqs[p.key],ok);
+      if(n>b.n) b={n:n,ps:[p]}; else if(n===b.n&&n>0) b.ps.push(p);
+    });
+    return b;
+  };
+  var unb=best(function(x){ return x!=="L"; }), wr=best(function(x){ return x==="W"; });
+  var names=function(ps){ return ps.map(nameTag).join(" "); };
+
+  var card=function(label,value,detail){
+    return '<div class="rec"><div class="rlabel">'+label+'</div><div class="rval">'+value+'</div>'+
+      '<div class="rdet">'+detail+'</div></div>';
+  };
+  var h='<div class="kicker">Season '+L.seasonNo+' \u00B7 '+games.length+' fixtures played'+
+    (forfeits?' \u00B7 '+forfeits+' forfeit'+(forfeits===1?'':'s'):'')+'</div><div class="recs">';
+  h+= big ? card("Biggest win",'+'+fmtInt(big.margin),
+          nameTag(winner(big))+' beat '+nameTag(loser(big))+' \u00B7 R'+big.round) : '';
+  h+= close ? card("Closest win",'+'+fmtInt(close.margin),
+          nameTag(winner(close))+' edged '+nameTag(loser(close))+' \u00B7 R'+close.round) : '';
+  h+= card("Top fixture score",fmtInt(top.v),nameTag(top.p)+' \u00B7 R'+top.r);
+  h+= card("Longest unbeaten",unb.n+' game'+(unb.n===1?"":"s"),names(unb.ps)||"\u2014");
+  h+= card("Longest winning run",wr.n+' game'+(wr.n===1?"":"s"),names(wr.ps)||"\u2014");
+  h+= card("Draw rate",Math.round(draws.length/games.length*100)+'%',
+          draws.length+' of '+games.length+' within '+fmtInt(L.margin));
   h+='</div>';
+
+  /* draws per player */
+  var dmax=Math.max.apply(null,L.table.map(function(r){ return r.D; }))||1;
+  h+='<div class="kicker" style="margin-top:14px">Draws by player</div><div class="dbars">';
+  L.table.slice().sort(function(a,b){ return b.D-a.D; }).forEach(function(r){
+    h+='<div class="dbar"><span class="dn">'+esc(r.p.name)+'</span>'+
+      '<span class="dtrack"><i style="width:'+(r.D/dmax*100)+'%;background:'+r.p.color+'"></i></span>'+
+      '<span class="dv num">'+r.D+'</span></div>';
+  });
+  body.innerHTML=h+'</div>';
+}
+
+/* ---------------- Head-to-head (all seasons) ---------------- */
+function renderH2H(body){
+  var m=STATE.lmodel; if(m.players.length<2) return noLeague(body);
+  var seasons=allSeasons(m), ppl=[], idx={}, rec={};
+  seasons.forEach(function(L){
+    L.roster.forEach(function(p){ if(!(p.key in idx)){ idx[p.key]=ppl.length; ppl.push(p); } });
+  });
+  ppl.forEach(function(p){ rec[p.key]={}; ppl.forEach(function(q){ rec[p.key][q.key]={W:0,D:0,L:0}; }); });
+  var total=0;
+  seasons.forEach(function(L){
+    L.rounds.forEach(function(rd){ rd.games.forEach(function(g){
+      if(g.state!=="played"&&g.state!=="walkover") return;
+      total++;
+      var ab=rec[g.a.key][g.b.key], ba=rec[g.b.key][g.a.key];
+      if(g.res==="d"){ ab.D++; ba.D++; }
+      else if(g.res==="a"){ ab.W++; ba.L++; }
+      else { ba.W++; ab.L++; }
+    }); });
+  });
+  var h='<div class="kicker">All seasons \u00B7 '+total+' fixtures '+helpIcon(TIP_H2H)+'</div>'+
+    '<div class="tscroll"><table class="h2h"><thead><tr><th></th>'+
+    ppl.map(function(q){ return '<th><span class="vlab" style="color:'+q.color+'">'+esc(q.name)+'</span></th>'; }).join("")+
+    '<th>Overall</th></tr></thead><tbody>';
+  ppl.forEach(function(p){
+    var o={W:0,D:0,L:0};
+    h+='<tr><th>'+nameTag(p)+'</th>';
+    ppl.forEach(function(q){
+      if(p.key===q.key){ h+='<td class="self"></td>'; return; }
+      var c=rec[p.key][q.key], n=c.W+c.D+c.L;
+      o.W+=c.W; o.D+=c.D; o.L+=c.L;
+      if(!n){ h+='<td class="never">\u00B7</td>'; return; }
+      var cls=c.W>c.L?"hwin":(c.L>c.W?"hloss":"heven");
+      h+='<td class="'+cls+'"><span class="wdl">'+c.W+'\u2013'+c.D+'\u2013'+c.L+'</span></td>';
+    });
+    h+='<td class="tot"><span class="wdl">'+o.W+'\u2013'+o.D+'\u2013'+o.L+'</span></td></tr>';
+  });
+  body.innerHTML=h+'</tbody></table></div>';
+}
+
+/* ---------------- Hall of fame (all seasons) ---------------- */
+function renderHall(body){
+  var m=STATE.lmodel; if(m.players.length<2) return noLeague(body);
+  var seasons=allSeasons(m), titles={};
+  var h='<div class="kicker">League champions</div><div class="hof">';
+  seasons.slice().reverse().forEach(function(L){
+    var first=L.table[0], second=L.table[1];
+    var games=0, draws=0;
+    L.rounds.forEach(function(rd){ rd.games.forEach(function(g){
+      if(g.state==="played"&&!g.forfeit){ games++; if(g.res==="d") draws++; }
+    }); });
+    var status=L.complete?"":(L.played?'<span class="tag live">Live</span>':'<span class="tag">Up next</span>');
+    if(L.complete) titles[first.p.key]=(titles[first.p.key]||{p:first.p,n:0}), titles[first.p.key].n++;
+    var tieOnPts=second&&first.Pts===second.Pts;
+    h+='<div class="hrow'+(L.complete?"":" open")+'">'+
+      '<span class="hs">S'+L.seasonNo+'</span>'+
+      '<span class="hw">'+(L.played?(L.complete?'<span class="star">\u2605</span>':'')+nameTag(first.p):'\u2014')+
+        status+'</span>'+
+      '<span class="hp">'+(L.played?first.Pts+' pts'+(tieOnPts&&L.complete?' <em>on PD</em>':''):'')+'</span>'+
+      '<span class="hd">'+(games?Math.round(draws/games*100)+'% draws \u00B7 \u2264'+fmtInt(L.margin):
+        '\u2264'+fmtInt(L.margin))+'</span></div>';
+  });
+  h+='</div>';
+  var tally=Object.keys(titles).map(function(k){ return titles[k]; })
+    .sort(function(a,b){ return b.n-a.n||a.p.name.localeCompare(b.p.name); });
+  if(tally.length){
+    h+='<div class="kicker" style="margin-top:14px">Titles</div><div class="titles">';
+    tally.forEach(function(t){
+      h+='<div class="tt">'+nameTag(t.p)+'<span class="stars">'+
+        new Array(t.n+1).join('\u2605')+'</span><span class="tn num">'+t.n+'</span></div>';
+    });
+    h+='</div>';
+  }
   body.innerHTML=h;
 }
+
 /* ============================================================================
    12. STATUS REPORTING
    ========================================================================== */
@@ -2312,10 +2537,14 @@ function startAutoRefresh(){
 
 
 function loadCSV(text,quiet,kind){
-  var parsed, model;
+  var parsed, model, lmodel, ff=[];
   try{
     parsed=parseSheet(text);
-    model=buildModel(parsed);
+    /* League model: the sheet exactly as entered, so league history never moves.
+       Dashboard model: the same data with hand-entered forfeit scores removed. */
+    lmodel=buildModel(parsed);
+    if(lmodel.players.length>1) ff=forfeitCells(lmodel);
+    model=ff.length ? buildModel(withoutForfeits(parsed,ff)) : lmodel;
   }catch(err){
     var hint=(err instanceof ParseError)?err.hint:"Check that the export still has its date header row and player rows.";
     showMsg("err",(err.message||"Could not read that data."),
@@ -2323,7 +2552,7 @@ function loadCSV(text,quiet,kind){
       "<div style='margin-top:6px;opacity:.75'>The dashboard is still showing the last data that loaded.</div>");
     return false;
   }
-  STATE.model=model; STATE.rawCSV=text; STATE.hidden={};
+  STATE.model=model; STATE.lmodel=lmodel; STATE.forfeits=ff; STATE.rawCSV=text; STATE.hidden={};
   if(kind){ SRC.kind=kind; if(kind!=="sheet") SRC.error=null; }
   if(kind==="paste"||kind==="file") SRC.at=new Date();
   STATE.view=null;                     /* force the scoped view to rebuild */
@@ -2331,7 +2560,10 @@ function loadCSV(text,quiet,kind){
   renderBoard();
   updateStamp();
 
-  var failed=model.checks.filter(function(c){ return !c.ok; });
+  var failed=lmodel.checks.filter(function(c){ return !c.ok; });
+  if(ff.length&&!quiet&&window.console&&console.info)
+    console.info("Champions League: read "+ff.length+" forfeit entries (opponent minus "+
+      fmtInt(FORFEIT_GAP)+"); they count in the league but are excluded from dashboard stats.");
   if(!quiet){
     var range=fmtDateLong(model.dates[0])+" \u2013 "+fmtDateLong(model.dates[model.latest]);
     /* Cross-check mismatches mean the SHEET's own summary rows disagree with the
@@ -2339,6 +2571,8 @@ function loadCSV(text,quiet,kind){
        to new day columns. Everything on screen is recomputed and correct, so this
        is a note for the sheet owner, not an alarm for everyone opening the page:
        it goes to the console, never the banner. */
+    if(parsed.warnings&&parsed.warnings.length&&window.console&&console.info)
+      console.info("Champions League: "+parsed.warnings.join(" | "));
     if(failed.length&&window.console&&console.info)
       console.info("Champions League: "+failed.length+" sheet cross-check(s) differ from the recomputed "+
         "values (dashboard figures are the correct ones): "+
@@ -2384,8 +2618,12 @@ var PANELS=[
   {id:"podium",    title:"Winning Days Podium",note:"",                      span:7,  render:renderPodium},
   {id:"squad",     title:"Squad",              note:"CUSTOMISE",             span:5,  render:renderSquad},
   /* --- League tab --- */
-  {id:"league",    title:"League Table",       note:"W / D / L",  tab:"league", span:7, render:renderLeague},
-  {id:"fixtures",  title:"Fixtures & Results", note:"10 ROUNDS",  tab:"league", span:5, render:renderFixtures}
+  {id:"league",    title:"League Table",        note:"",  tab:"league", span:7, render:renderLeague},
+  {id:"fixtures",  title:"Fixtures & Results",  note:"",  tab:"league", span:5, render:renderFixtures},
+  {id:"positions", title:"Position by Round",   note:"",  tab:"league", span:7, render:renderPositions},
+  {id:"records",   title:"Season Records",      note:"",  tab:"league", span:5, render:renderRecords},
+  {id:"h2h",       title:"Head-to-Head",        note:"",  tab:"league", span:7, render:renderH2H},
+  {id:"hall",      title:"Hall of Fame",        note:"",  tab:"league", span:5, render:renderHall}
 ];
 PANELS.forEach(function(p){ if(!p.tab) p.tab="dashboard"; });
 var PANEL_ORDER=PANELS.map(function(p){return p.id;});
@@ -2451,21 +2689,22 @@ function syncPeriodBar(){
 function renderSeasonBar(){
   var bar=document.getElementById("periodbar");
   if(!bar||!STATE.model) return;
-  var total=seasonCount(STATE.model), cur=currentSeason();
-  var chips="";
-  for(var i=0;i<total;i++){
-    chips+='<button class="pchip'+(cur===i?" on":"")+'" data-season="'+i+'">Season '+(i+1)+
-      (i===total-1?'<span class="livetag">LIVE</span>':'')+'</button>';
-  }
+  var plan=seasonPlan(STATE.lmodel), cur=currentSeason(), chips="";
+  plan.forEach(function(p,i){
+    var tag = p.mds.length===p.per ? "" : (p.mds.length ? '<span class="livetag">LIVE</span>'
+                                                       : '<span class="livetag next">NEXT</span>');
+    chips+='<button class="pchip'+(cur===i?" on":"")+'" data-season="'+i+'">S'+p.season+tag+'</button>';
+  });
+  var L=buildLeague(STATE.lmodel,cur);
   bar.style.display="";
   bar.innerHTML='<span class="plabel">Season</span><div class="pchips">'+chips+'</div>'+
-    '<span class="phint">Each season is '+roundRobin(STATE.model.players.length).length+
-    ' rounds \u2014 one per matchday \u2014 with everyone meeting everyone twice.</span>';
+    '<span class="phint">'+L.per+' rounds \u00B7 one per matchday \u00B7 draw within '+
+    fmtInt(L.margin)+'</span>';
   Array.prototype.forEach.call(bar.querySelectorAll("[data-season]"),function(btn){
     btn.addEventListener("click",function(){
       STATE.season=+btn.getAttribute("data-season");
       Store.set("cl-season",STATE.season);
-      renderSeasonBar(); refreshAll(["league","fixtures"]);
+      renderSeasonBar(); refreshAll(["league","fixtures","positions","records"]);
     });
   });
 }
